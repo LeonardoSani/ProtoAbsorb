@@ -48,9 +48,7 @@ be the centroid of class $c$ computed on the clean training set $S_c$.
 
 **Hypothesis (Prototype Absorption):** Under TENT updates on mixed batches, OOD feature representations are pulled monotonically toward the nearest ID class centroid:
 
-$$
-\frac{d}{dt}\, \|\phi(x_{\mathrm{OOD}}) - \mu_{c^*}\|_2 < 0, \qquad c^* = \arg\min_c \|\phi(x_{\mathrm{OOD}}) - \mu_c\|_2
-$$
+$$\frac{d}{dt}\, \lVert\phi(x_{\mathrm{OOD}}) - \mu_{c^\ast}\rVert_2 < 0, \qquad c^\ast = \arg\min_c \lVert\phi(x_{\mathrm{OOD}}) - \mu_c\rVert_2$$
 
 As OOD features collapse onto ID prototypes, any OOD detector relying on feature-space geometry (distance, energy, softmax confidence) will degrade — the model effectively *absorbs* OOD samples into its in-distribution manifold.
 
