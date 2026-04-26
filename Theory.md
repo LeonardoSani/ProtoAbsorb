@@ -1,7 +1,5 @@
 # Prototype Absorption: OOD Detection Degradation under Test-Time Adaptation
 
-**Authors:** Leonardo Sani, Giuseppe Stillitano, Xavier Del Giudice, Can Lin
-
 ---
 
 ## Table of Contents
