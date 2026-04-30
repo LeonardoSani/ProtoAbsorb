@@ -1,0 +1,39 @@
+[project]
+name = "proto-absorb"
+version = "0.1.0"
+description = "Prototype Absorption: OOD Detection Degradation under Test-Time Adaptation"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+authors = [{ name = "ProtoAbsorb Authors" }]
+dependencies = [
+    "torch>=2.2",
+    "torchvision>=0.17",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "scikit-learn>=1.3",
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+    "tqdm>=4.66",
+    "pyyaml>=6.0",
+    "umap-learn>=0.5.5",
+    "pandas>=2.1",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+cuda = []  # install torch from a CUDA index manually if needed
+
+[project.scripts]
+proto-train = "proto_absorb.cli:train_main"
+proto-centroids = "proto_absorb.cli:centroids_main"
+proto-exp1 = "proto_absorb.cli:exp1_main"
+proto-exp2 = "proto_absorb.cli:exp2_main"
+proto-exp3 = "proto_absorb.cli:exp3_main"
+proto-exp7 = "proto_absorb.cli:exp7_main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/proto_absorb"]

@@ -1,0 +1,25 @@
+# uv / venv
+.venv/
+.uv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+build/
+dist/
+
+# Data & artifacts
+data/
+checkpoints/
+results/
+outputs/
+*.npz
+*.npy
+*.pt
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
