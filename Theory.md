@@ -88,7 +88,7 @@ As OOD features collapse onto ID prototypes, any OOD detector relying on feature
 
 ### 3.3 Centroid Computation
 
-Centroids $\{\mu_c\}_{c=1}^{10}$ are computed **once** on the clean CIFAR-10 training set using the frozen pre-trained encoder:
+Centroids are computed **once** on the clean CIFAR-10 training set using the frozen pre-trained encoder:
 
 $$
 \mu_c^{(0)} = \frac{1}{|S_c|} \sum_{x \in S_c} \phi_{\theta_0}(x)
