@@ -251,32 +251,11 @@ Compare against vanilla TENT across all $(\alpha, t)$ combinations.
 
 ---
 
-### Fix B — Prototype-Anchored Regularization
-
-**Idea:** Add a regularization term to the TENT objective that penalizes deviation of **ID** sample features from their initial centroids. This anchors the ID manifold while still allowing BN adaptation.
-
-$$
-\mathcal{L}_{\text{anchor}} = \mathcal{L}_{\text{TENT}} + \lambda \sum_{i : \hat{y}_i \text{ confident}} \|\phi(x_i) - \mu_{\hat{y}_i}^{(0)}\|_2^2
-$$
-
-where confidence is determined by a threshold $\tau$ on MSP, and $\hat{y}_i = \arg\max_c p_c(x_i)$.
-
-**Hyperparameters to tune:** $\lambda \in \{0.01, 0.1, 1.0\}$, $\tau \in \{0.7, 0.8, 0.9\}$
+### Fix B — 
 
 ---
 
-### Fix C — Selective Sample Filtering (Hard Threshold)
-
-**Idea:** Before each TENT step, filter out samples whose OOD score exceeds a threshold $\tau_{\text{OOD}}$, computing gradients only on likely-ID samples.
-
-$$
-\tilde{X} = \{x_i \in X : s(x_i) < \tau_{\text{OOD}}\}
-\qquad \mathcal{L} = \frac{1}{|\tilde{X}|} \sum_{x \in \tilde{X}} H(p(x))
-$$
-
-This is the hard-threshold analogue of Fix A. The threshold can be calibrated on the clean validation set.
-
-> **Note:** Fixes A–C can be combined. A natural ensemble is Fix A + Fix B (weighted entropy + prototype anchoring).
+### Fix C — 
 
 ---
 
