@@ -1,0 +1,15 @@
+{
+  "snapshots": [
+    0,
+    5,
+    10,
+    15
+  ],
+  "ks": [
+    1,
+    5
+  ],
+  "alpha": 0.5,
+  "corruption": "gaussian_noise",
+  "n_steps": 20
+}

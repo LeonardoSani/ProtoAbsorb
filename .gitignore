@@ -13,7 +13,6 @@ dist/
 # Data & artifacts
 data/
 checkpoints/
-results/
 outputs/
 *.npz
 *.npy
