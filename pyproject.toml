@@ -26,6 +26,14 @@ cuda = []  # install torch from a CUDA index manually if needed
 [project.scripts]
 proto-train = "proto_absorb.cli:train_main"
 proto-centroids = "proto_absorb.cli:centroids_main"
+# Reframed protocol (canonical, see doc/reframe.md)
+proto-step1 = "proto_absorb.cli:step1_main"
+proto-step2 = "proto_absorb.cli:step2_main"
+proto-step3 = "proto_absorb.cli:step3_main"
+proto-step4 = "proto_absorb.cli:step4_main"
+proto-step5 = "proto_absorb.cli:step5_main"
+proto-step6 = "proto_absorb.cli:step6_main"
+# Legacy prototype-absorption framing (kept for reproducibility)
 proto-exp1 = "proto_absorb.cli:exp1_main"
 proto-exp2 = "proto_absorb.cli:exp2_main"
 proto-exp3 = "proto_absorb.cli:exp3_main"

@@ -31,3 +31,37 @@ def exp3_main() -> None:
 def exp7_main() -> None:
     from experiments.exp7_vector_field import cli
     cli()
+
+
+# ---------------------------------------------------------------------------
+# Reframed step-N entry points (canonical going forward, see doc/reframe.md).
+# ---------------------------------------------------------------------------
+
+def step1_main() -> None:
+    from experiments.exp_step1_sanity import cli
+    cli()
+
+
+def step2_main() -> None:
+    from experiments.exp_step2_contamination import cli
+    cli()
+
+
+def step3_main() -> None:
+    from experiments.exp_step3_detector_breadth import cli
+    cli()
+
+
+def step4_main() -> None:
+    from experiments.exp_step4_mechanism import cli
+    cli()
+
+
+def step5_main() -> None:
+    from experiments.exp_step5_generalization import cli
+    cli()
+
+
+def step6_main() -> None:
+    from experiments.exp_step6_fix_a import cli
+    cli()
