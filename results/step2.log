@@ -1,0 +1,41 @@
+warning: `VIRTUAL_ENV=/home/xyz/anaconda3` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+[09:31:04] INFO step2: Device: cuda
+[09:31:04] INFO step2: == Main corruption: gaussian_noise ==
+[09:31:04] INFO step2:   alpha=0.9, n_batches=30
+[09:31:19] INFO step2:     no_tta    Delta-AUROC = +0.000 [+0.000, +0.000]  AUROC(T)=0.591
+[09:31:19] INFO step2:     id_only   Delta-AUROC = +0.188 [+0.162, +0.212]  AUROC(T)=0.778
+[09:31:19] INFO step2:     mixed     Delta-AUROC = -0.043 [-0.100, +0.016]  AUROC(T)=0.548
+[09:31:19] INFO step2:     paired t-test (mixed vs id_only): t=-7.54  p=2.63e-08
+[09:31:19] INFO step2:   alpha=0.75, n_batches=30
+[09:31:33] INFO step2:     no_tta    Delta-AUROC = +0.000 [+0.000, +0.000]  AUROC(T)=0.621
+[09:31:33] INFO step2:     id_only   Delta-AUROC = +0.130 [+0.114, +0.145]  AUROC(T)=0.752
+[09:31:33] INFO step2:     mixed     Delta-AUROC = -0.045 [-0.077, -0.010]  AUROC(T)=0.576
+[09:31:33] INFO step2:     paired t-test (mixed vs id_only): t=-8.77  p=1.2e-09
+[09:31:33] INFO step2:   alpha=0.5, n_batches=30
+[09:31:46] INFO step2:     no_tta    Delta-AUROC = +0.000 [+0.000, +0.000]  AUROC(T)=0.576
+[09:31:46] INFO step2:     id_only   Delta-AUROC = +0.077 [+0.063, +0.092]  AUROC(T)=0.654
+[09:31:46] INFO step2:     mixed     Delta-AUROC = -0.052 [-0.081, -0.023]  AUROC(T)=0.524
+[09:31:46] INFO step2:     paired t-test (mixed vs id_only): t=-7.95  p=9.1e-09
+[09:31:46] INFO step2:   alpha=0.25, n_batches=30
+[09:31:59] INFO step2:     no_tta    Delta-AUROC = +0.000 [+0.000, +0.000]  AUROC(T)=0.573
+[09:31:59] INFO step2:     id_only   Delta-AUROC = +0.027 [+0.012, +0.042]  AUROC(T)=0.600
+[09:31:59] INFO step2:     mixed     Delta-AUROC = -0.051 [-0.077, -0.022]  AUROC(T)=0.523
+[09:31:59] INFO step2:     paired t-test (mixed vs id_only): t=-5.16  p=1.62e-05
+[09:31:59] INFO step2: == Other corruptions (sanity / generalization) ==
+[09:31:59] INFO step2:   corruption=fog, alpha=0.9
+[09:32:06] INFO step2:   corruption=fog, alpha=0.75
+[09:32:13] INFO step2:   corruption=fog, alpha=0.5
+[09:32:20] INFO step2:   corruption=fog, alpha=0.25
+[09:32:27] INFO step2:   corruption=impulse_noise, alpha=0.9
+[09:32:34] INFO step2:   corruption=impulse_noise, alpha=0.75
+[09:32:41] INFO step2:   corruption=impulse_noise, alpha=0.5
+[09:32:48] INFO step2:   corruption=impulse_noise, alpha=0.25
+[09:32:55] INFO step2:   corruption=elastic_transform, alpha=0.9
+[09:33:02] INFO step2:   corruption=elastic_transform, alpha=0.75
+[09:33:09] INFO step2:   corruption=elastic_transform, alpha=0.5
+[09:33:15] INFO step2:   corruption=elastic_transform, alpha=0.25
+[09:33:22] INFO step2:   corruption=pixelate, alpha=0.9
+[09:33:29] INFO step2:   corruption=pixelate, alpha=0.75
+[09:33:36] INFO step2:   corruption=pixelate, alpha=0.5
+[09:33:43] INFO step2:   corruption=pixelate, alpha=0.25
+[09:33:50] INFO step2: Done. Results in results/step2
