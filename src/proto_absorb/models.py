@@ -110,6 +110,36 @@ def bn_to_in(model: nn.Module) -> nn.Module:
     return model
 
 
+class ViTSmall(nn.Module):
+    """ViT-S/16 (timm) with return_features=True interface. Expects 224×224 input."""
+
+    feat_dim = 384
+
+    def __init__(self, num_classes: int = 10):
+        super().__init__()
+        import timm
+        self.backbone = timm.create_model(
+            "vit_small_patch16_224", pretrained=True, num_classes=0
+        )
+        self.head = nn.Linear(384, num_classes)
+
+    def features(self, x: torch.Tensor) -> torch.Tensor:
+        return self.backbone(x)
+
+    def forward(
+        self, x: torch.Tensor, return_features: bool = False
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
+        feats = self.features(x)
+        logits = self.head(feats)
+        if return_features:
+            return logits, feats
+        return logits
+
+
+def build_vit_small(num_classes: int = 10) -> ViTSmall:
+    return ViTSmall(num_classes=num_classes)
+
+
 def load_checkpoint(model: nn.Module, ckpt_path: str, map_location: Optional[str] = None) -> nn.Module:
     state = torch.load(ckpt_path, map_location=map_location or "cpu", weights_only=False)
     if isinstance(state, dict) and "model" in state:

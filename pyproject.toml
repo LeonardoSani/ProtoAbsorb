@@ -18,6 +18,7 @@ dependencies = [
     "umap-learn>=0.5.5",
     "pandas>=2.1",
     "requests>=2.31",
+    "timm>=1.0.26",
 ]
 
 [project.optional-dependencies]
@@ -33,6 +34,8 @@ proto-step3 = "proto_absorb.cli:step3_main"
 proto-step4 = "proto_absorb.cli:step4_main"
 proto-step5 = "proto_absorb.cli:step5_main"
 proto-step6 = "proto_absorb.cli:step6_main"
+proto-train-vit = "proto_absorb.cli:train_vit_main"
+proto-vit-backbone = "proto_absorb.cli:vit_backbone_main"
 # Legacy prototype-absorption framing (kept for reproducibility)
 proto-exp1 = "proto_absorb.cli:exp1_main"
 proto-exp2 = "proto_absorb.cli:exp2_main"

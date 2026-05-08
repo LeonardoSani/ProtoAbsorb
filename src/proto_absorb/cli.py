@@ -65,3 +65,13 @@ def step5_main() -> None:
 def step6_main() -> None:
     from experiments.exp_step6_fix_a import cli
     cli()
+
+
+def train_vit_main() -> None:
+    from .train_vit import cli
+    cli()
+
+
+def vit_backbone_main() -> None:
+    from experiments.exp_vit_backbone import cli
+    cli()

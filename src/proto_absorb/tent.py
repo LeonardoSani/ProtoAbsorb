@@ -210,6 +210,36 @@ def tent_step(
     return {"loss": float(loss.detach().cpu())}
 
 
+def collect_ln_params(model: nn.Module) -> tuple[list[nn.Parameter], list[str]]:
+    """Return LayerNorm affine parameters and their names (for ViT-style TENT)."""
+    params, names = [], []
+    for module_name, module in model.named_modules():
+        if isinstance(module, nn.LayerNorm) and module.elementwise_affine:
+            for pname, p in module.named_parameters(recurse=False):
+                if pname in {"weight", "bias"}:
+                    params.append(p)
+                    names.append(f"{module_name}.{pname}")
+    return params, names
+
+
+def configure_vit_tent_model(model: nn.Module) -> nn.Module:
+    """Prepare ViT for TENT-style adaptation via LayerNorm affine parameters.
+
+    LN computes per-token statistics regardless of batch composition, so there
+    is no shared-batch-statistics contamination pathway — only gradient
+    contamination remains. This lets us isolate the gradient contribution.
+    """
+    model.eval()
+    for p in model.parameters():
+        p.requires_grad_(False)
+    for m in model.modules():
+        if isinstance(m, nn.LayerNorm) and m.elementwise_affine:
+            for pname, p in m.named_parameters(recurse=False):
+                if pname in {"weight", "bias"}:
+                    p.requires_grad_(True)
+    return model
+
+
 def configure_in_model(model: nn.Module) -> nn.Module:
     """Prepare a model whose BN layers have been replaced by InstanceNorm2d for
     TENT-style adaptation.

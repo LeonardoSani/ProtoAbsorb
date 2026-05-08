@@ -25,6 +25,9 @@ from torch.utils.data import DataLoader, Dataset
 CIFAR10_MEAN = (0.4914, 0.4822, 0.4465)
 CIFAR10_STD = (0.2470, 0.2435, 0.2616)
 
+IMAGENET_MEAN = (0.485, 0.456, 0.406)
+IMAGENET_STD  = (0.229, 0.224, 0.225)
+
 CIFAR10_C_CORRUPTIONS: tuple[str, ...] = (
     "gaussian_noise",
     "shot_noise",
@@ -74,6 +77,45 @@ def cifar10_test(data_root: str) -> torchvision.datasets.CIFAR10:
     return torchvision.datasets.CIFAR10(
         root=data_root, train=False, transform=eval_transform(), download=True
     )
+
+
+def eval_transform_224() -> T.Compose:
+    """224×224 eval transform with ImageNet normalization (for ViT-S/16)."""
+    return T.Compose([
+        T.Resize(224),
+        T.ToTensor(),
+        T.Normalize(IMAGENET_MEAN, IMAGENET_STD),
+    ])
+
+
+def train_transform_224() -> T.Compose:
+    return T.Compose([
+        T.RandomResizedCrop(224, scale=(0.2, 1.0)),
+        T.RandomHorizontalFlip(),
+        T.ToTensor(),
+        T.Normalize(IMAGENET_MEAN, IMAGENET_STD),
+    ])
+
+
+def cifar10_train_224(data_root: str, augment: bool = True) -> torchvision.datasets.CIFAR10:
+    return torchvision.datasets.CIFAR10(
+        root=data_root, train=True,
+        transform=train_transform_224() if augment else eval_transform_224(),
+        download=True,
+    )
+
+
+def cifar10_test_224(data_root: str) -> torchvision.datasets.CIFAR10:
+    return torchvision.datasets.CIFAR10(
+        root=data_root, train=False, transform=eval_transform_224(), download=True
+    )
+
+
+def svhn_ood_224(data_root: str, split: str = "test") -> Dataset:
+    base = torchvision.datasets.SVHN(
+        root=data_root, split=split, transform=eval_transform_224(), download=True
+    )
+    return _OODWrapper(base)
 
 
 # ---------------------------------------------------------------------------
