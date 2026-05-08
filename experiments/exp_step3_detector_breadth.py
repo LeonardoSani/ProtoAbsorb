@@ -194,7 +194,8 @@ def cli() -> None:
     parser.add_argument("--alphas", type=float, nargs="+", default=None,
                         help="If set, run multi-alpha and produce one figure per alpha.")
     parser.add_argument("--severity", type=int, default=5)
-    parser.add_argument("--ood", default="svhn", choices=["svhn", "cifar100"])
+    parser.add_argument("--ood", default="svhn",
+                        choices=["svhn", "cifar100", "dtd", "places365"])
     parser.add_argument("--steps", type=int, default=DEFAULT_T)
     parser.add_argument("--batches", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)

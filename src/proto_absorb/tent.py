@@ -210,6 +210,36 @@ def tent_step(
     return {"loss": float(loss.detach().cpu())}
 
 
+def configure_in_model(model: nn.Module) -> nn.Module:
+    """Prepare a model whose BN layers have been replaced by InstanceNorm2d for
+    TENT-style adaptation.
+
+    IN computes per-sample statistics regardless of train/eval mode, so no
+    mode toggle is needed. Only IN affine parameters (weight/bias) are unfrozen.
+    """
+    model.eval()
+    for p in model.parameters():
+        p.requires_grad_(False)
+    for m in model.modules():
+        if isinstance(m, nn.InstanceNorm2d) and m.affine:
+            for pname, p in m.named_parameters(recurse=False):
+                if pname in {"weight", "bias"}:
+                    p.requires_grad_(True)
+    return model
+
+
+def collect_in_params(model: nn.Module) -> tuple[list[nn.Parameter], list[str]]:
+    """Return only InstanceNorm2d affine parameters and their names."""
+    params, names = [], []
+    for module_name, module in model.named_modules():
+        if isinstance(module, nn.InstanceNorm2d) and module.affine:
+            for pname, p in module.named_parameters(recurse=False):
+                if pname in {"weight", "bias"}:
+                    params.append(p)
+                    names.append(f"{module_name}.{pname}")
+    return params, names
+
+
 @torch.no_grad()
 def snapshot_logits_and_features(
     model: nn.Module, images: torch.Tensor

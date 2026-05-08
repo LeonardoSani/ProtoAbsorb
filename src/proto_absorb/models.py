@@ -82,6 +82,34 @@ def build_resnet18(num_classes: int = 10) -> ResNet18:
     return ResNet18(num_classes=num_classes)
 
 
+def _replace_bn_with_in(module: nn.Module) -> None:
+    for name, child in list(module.named_children()):
+        if isinstance(child, nn.BatchNorm2d):
+            in_layer = nn.InstanceNorm2d(
+                child.num_features, affine=True, track_running_stats=False
+            )
+            if child.affine:
+                in_layer.weight.data.copy_(child.weight.data)
+                in_layer.bias.data.copy_(child.bias.data)
+            setattr(module, name, in_layer)
+        else:
+            _replace_bn_with_in(child)
+
+
+def bn_to_in(model: nn.Module) -> nn.Module:
+    """Return deep copy of model with every BatchNorm2d replaced by InstanceNorm2d.
+
+    Affine parameters (weight/bias) are copied from BN to IN so the initial
+    forward pass is close to the BN model's output. IN computes per-sample
+    statistics regardless of batch composition, removing the shared-statistics
+    contamination pathway that BN introduces.
+    """
+    import copy
+    model = copy.deepcopy(model)
+    _replace_bn_with_in(model)
+    return model
+
+
 def load_checkpoint(model: nn.Module, ckpt_path: str, map_location: Optional[str] = None) -> nn.Module:
     state = torch.load(ckpt_path, map_location=map_location or "cpu", weights_only=False)
     if isinstance(state, dict) and "model" in state:

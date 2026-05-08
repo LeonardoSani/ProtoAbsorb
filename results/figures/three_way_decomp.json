@@ -1,0 +1,134 @@
+[
+  {
+    "ood": "svhn",
+    "alpha": 0.9,
+    "AUROC_clean": 0.9181067781960663,
+    "AUROC_t0": 0.5263078941303012,
+    "AUROC_id_only_T": 0.7138557868506078,
+    "AUROC_mixed_T": 0.48349180217627824,
+    "delta_corruption": -0.39179888406576513,
+    "delta_TTA": 0.18754789272030656,
+    "delta_contamination": -0.23036398467432956
+  },
+  {
+    "ood": "svhn",
+    "alpha": 0.75,
+    "AUROC_clean": 0.9181067781960663,
+    "AUROC_t0": 0.5263078941303012,
+    "AUROC_id_only_T": 0.6565162274636346,
+    "AUROC_mixed_T": 0.4812558107969679,
+    "delta_corruption": -0.39179888406576513,
+    "delta_TTA": 0.13020833333333334,
+    "delta_contamination": -0.17526041666666667
+  },
+  {
+    "ood": "svhn",
+    "alpha": 0.5,
+    "AUROC_clean": 0.9181067781960663,
+    "AUROC_t0": 0.5263078941303012,
+    "AUROC_id_only_T": 0.6037818524636346,
+    "AUROC_mixed_T": 0.47396414413030125,
+    "delta_corruption": -0.39179888406576513,
+    "delta_TTA": 0.07747395833333333,
+    "delta_contamination": -0.12981770833333334
+  },
+  {
+    "ood": "svhn",
+    "alpha": 0.25,
+    "AUROC_clean": 0.9181067781960663,
+    "AUROC_t0": 0.5263078941303012,
+    "AUROC_id_only_T": 0.5533912274636346,
+    "AUROC_mixed_T": 0.475570046908079,
+    "delta_corruption": -0.39179888406576513,
+    "delta_TTA": 0.027083333333333355,
+    "delta_contamination": -0.07782118055555555
+  },
+  {
+    "ood": "dtd",
+    "alpha": 0.9,
+    "AUROC_clean": 0.9099488563829787,
+    "AUROC_t0": 0.5302067287234042,
+    "AUROC_id_only_T": 0.7390189892598028,
+    "AUROC_mixed_T": 0.5272373800644005,
+    "delta_corruption": -0.3797421276595745,
+    "delta_TTA": 0.20881226053639854,
+    "delta_contamination": -0.21178160919540234
+  },
+  {
+    "ood": "dtd",
+    "alpha": 0.75,
+    "AUROC_clean": 0.9099488563829787,
+    "AUROC_t0": 0.5302067287234042,
+    "AUROC_id_only_T": 0.6965261731678487,
+    "AUROC_mixed_T": 0.4934011731678487,
+    "delta_corruption": -0.3797421276595745,
+    "delta_TTA": 0.16631944444444444,
+    "delta_contamination": -0.203125
+  },
+  {
+    "ood": "dtd",
+    "alpha": 0.5,
+    "AUROC_clean": 0.9099488563829787,
+    "AUROC_t0": 0.5302067287234042,
+    "AUROC_id_only_T": 0.6487288641400709,
+    "AUROC_mixed_T": 0.4749332912234042,
+    "delta_corruption": -0.3797421276595745,
+    "delta_TTA": 0.11852213541666666,
+    "delta_contamination": -0.17379557291666667
+  },
+  {
+    "ood": "dtd",
+    "alpha": 0.25,
+    "AUROC_clean": 0.9099488563829787,
+    "AUROC_t0": 0.5302067287234042,
+    "AUROC_id_only_T": 0.6274289509456265,
+    "AUROC_mixed_T": 0.4978499578900709,
+    "delta_corruption": -0.3797421276595745,
+    "delta_TTA": 0.0972222222222222,
+    "delta_contamination": -0.12957899305555554
+  },
+  {
+    "ood": "places365",
+    "alpha": 0.9,
+    "AUROC_clean": 0.8801749808219178,
+    "AUROC_t0": 0.4887349643835616,
+    "AUROC_id_only_T": 0.6804974164908413,
+    "AUROC_mixed_T": 0.5048269184065501,
+    "delta_corruption": -0.3914400164383562,
+    "delta_TTA": 0.19176245210727969,
+    "delta_contamination": -0.17567049808429117
+  },
+  {
+    "ood": "places365",
+    "alpha": 0.75,
+    "AUROC_clean": 0.8801749808219178,
+    "AUROC_t0": 0.4887349643835616,
+    "AUROC_id_only_T": 0.6414910407724506,
+    "AUROC_mixed_T": 0.5204406935502284,
+    "delta_corruption": -0.3914400164383562,
+    "delta_TTA": 0.1527560763888889,
+    "delta_contamination": -0.12105034722222224
+  },
+  {
+    "ood": "places365",
+    "alpha": 0.5,
+    "AUROC_clean": 0.8801749808219178,
+    "AUROC_t0": 0.4887349643835616,
+    "AUROC_id_only_T": 0.5684224643835616,
+    "AUROC_mixed_T": 0.5089823602168949,
+    "delta_corruption": -0.3914400164383562,
+    "delta_TTA": 0.0796875,
+    "delta_contamination": -0.05944010416666666
+  },
+  {
+    "ood": "places365",
+    "alpha": 0.25,
+    "AUROC_clean": 0.8801749808219178,
+    "AUROC_t0": 0.4887349643835616,
+    "AUROC_id_only_T": 0.5066603116057838,
+    "AUROC_mixed_T": 0.4948113532724505,
+    "delta_corruption": -0.3914400164383562,
+    "delta_TTA": 0.017925347222222204,
+    "delta_contamination": -0.011848958333333322
+  }
+]

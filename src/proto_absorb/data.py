@@ -157,12 +157,53 @@ def cifar100_ood(data_root: str, split: str = "test") -> Dataset:
     return _OODWrapper(base)
 
 
+def _resize32_eval_transform() -> T.Compose:
+    """Eval transform for non-CIFAR-sized OOD datasets: resize to 32x32 then
+    normalize with CIFAR-10 statistics so the input distribution matches the
+    backbone's training resolution."""
+    return T.Compose([
+        T.Resize((32, 32)),
+        T.ToTensor(),
+        _normalize(),
+    ])
+
+
+def dtd_ood(data_root: str, split: str = "test") -> Dataset:
+    """DTD (Describable Textures) — semantically disjoint from CIFAR-10
+    (textures, no object categories). Standard far-OOD benchmark used in
+    Hendrycks 2019, Liang 2018 (ODIN), Liu 2020 (Energy)."""
+    base = torchvision.datasets.DTD(
+        root=data_root,
+        split="test" if split == "test" else "train",
+        transform=_resize32_eval_transform(),
+        download=True,
+    )
+    return _OODWrapper(base)
+
+
+def places365_ood(data_root: str, split: str = "test") -> Dataset:
+    """Places365 (val split, small=True ~256px) — scene categories,
+    semantically disjoint from CIFAR-10 object categories."""
+    base = torchvision.datasets.Places365(
+        root=str(Path(data_root) / "places365"),
+        split="val",
+        small=True,
+        transform=_resize32_eval_transform(),
+        download=True,
+    )
+    return _OODWrapper(base)
+
+
 def get_ood_dataset(name: str, data_root: str, split: str = "test") -> Dataset:
     name = name.lower()
     if name == "svhn":
         return svhn_ood(data_root, split=split)
     if name in {"cifar100", "cifar-100"}:
         return cifar100_ood(data_root, split=split)
+    if name == "dtd":
+        return dtd_ood(data_root, split=split)
+    if name in {"places365", "places"}:
+        return places365_ood(data_root, split=split)
     raise ValueError(f"Unknown OOD dataset '{name}'")
 
 

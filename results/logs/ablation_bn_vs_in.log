@@ -1,0 +1,8 @@
+[13:32:22] INFO bn_ablation: Device: cuda
+[13:32:44] INFO bn_ablation: BN gap  = +0.1298
+[13:32:44] INFO bn_ablation: IN gap  = +0.0144
+[13:32:44] INFO bn_ablation: Reduction = 88.9%
+[13:32:44] INFO bn_ablation: p(BN gap > IN gap) = 1.24e-07
+[13:32:44] INFO bn_ablation: RESULT: IN gap significantly smaller → BN statistics are part of mechanism
+[13:32:44] INFO bn_ablation: Done. Results in results/ablation_bn_vs_in
+Saved: results/ablation_bn_vs_in/bn_vs_in_svhn_gaussian_noise_alpha0.5.png

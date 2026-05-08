@@ -1,0 +1,26 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Three-way AUROC decomposition (MSP, gaussian\_noise sev-5). $\Delta_\text{corr}=\text{AUROC}(t{=}0,\text{corr})-\text{AUROC}(\text{clean})$, $\Delta_\text{TTA}=\text{AUROC}(T,\text{id-only})-\text{AUROC}(t{=}0)$, $\Delta_\text{contam}=\text{AUROC}(T,\text{mixed})-\text{AUROC}(T,\text{id-only})$.}
+\label{tab:three_way_decomp}
+\begin{tabular}{llrrrrrrr}
+\toprule
+OOD & $\alpha$ & Clean & $t{=}0$ & $\Delta_\text{corr}$ & $T_\text{id}$ & $\Delta_\text{TTA}$ & $T_\text{mx}$ & $\Delta_\text{contam}$ \\
+\midrule
+svhn & 0.90 & 0.918 & 0.526 & \textbf{-0.392} & 0.714 & \textbf{+0.188} & 0.483 & \textbf{-0.230} \\
+ & 0.75 & 0.918 & 0.526 & \textbf{-0.392} & 0.657 & \textbf{+0.130} & 0.481 & \textbf{-0.175} \\
+ & 0.50 & 0.918 & 0.526 & \textbf{-0.392} & 0.604 & \textbf{+0.077} & 0.474 & \textbf{-0.130} \\
+ & 0.25 & 0.918 & 0.526 & \textbf{-0.392} & 0.553 & \textbf{+0.027} & 0.476 & \textbf{-0.078} \\
+\midrule
+dtd & 0.90 & 0.910 & 0.530 & \textbf{-0.380} & 0.739 & \textbf{+0.209} & 0.527 & \textbf{-0.212} \\
+ & 0.75 & 0.910 & 0.530 & \textbf{-0.380} & 0.697 & \textbf{+0.166} & 0.493 & \textbf{-0.203} \\
+ & 0.50 & 0.910 & 0.530 & \textbf{-0.380} & 0.649 & \textbf{+0.119} & 0.475 & \textbf{-0.174} \\
+ & 0.25 & 0.910 & 0.530 & \textbf{-0.380} & 0.627 & \textbf{+0.097} & 0.498 & \textbf{-0.130} \\
+\midrule
+places365 & 0.90 & 0.880 & 0.489 & \textbf{-0.391} & 0.680 & \textbf{+0.192} & 0.505 & \textbf{-0.176} \\
+ & 0.75 & 0.880 & 0.489 & \textbf{-0.391} & 0.641 & \textbf{+0.153} & 0.520 & \textbf{-0.121} \\
+ & 0.50 & 0.880 & 0.489 & \textbf{-0.391} & 0.568 & \textbf{+0.080} & 0.509 & \textbf{-0.059} \\
+ & 0.25 & 0.880 & 0.489 & \textbf{-0.391} & 0.507 & \textbf{+0.018} & 0.495 & \textbf{-0.012} \\
+\bottomrule
+\end{tabular}
+\end{table}

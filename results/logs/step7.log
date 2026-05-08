@@ -1,0 +1,32 @@
+[11:01:02] INFO step7: Device: cuda
+[11:01:02] INFO step7: OOD=svhn alpha=0.9
+[11:01:59] INFO step7:   id_only Δ=+0.188
+[11:01:59] INFO step7:   fix_c τ=0.0: Δ=-0.043  p(vs id_only)=2.6e-08  p(vs vanilla)=nan
+[11:01:59] INFO step7:   fix_c τ=0.1: Δ=-0.032  p(vs id_only)=1.2e-08  p(vs vanilla)=0.46
+[11:01:59] INFO step7:   fix_c τ=0.2: Δ=-0.055  p(vs id_only)=5.1e-11  p(vs vanilla)=0.56
+[11:01:59] INFO step7:   fix_c τ=0.3: Δ=-0.058  p(vs id_only)=6.3e-11  p(vs vanilla)=0.6
+[11:01:59] INFO step7:   fix_c τ=0.5: Δ=-0.035  p(vs id_only)=8.4e-13  p(vs vanilla)=0.8
+[11:01:59] INFO step7: OOD=svhn alpha=0.5
+[11:02:54] INFO step7:   id_only Δ=+0.077
+[11:02:54] INFO step7:   fix_c τ=0.0: Δ=-0.052  p(vs id_only)=9.1e-09  p(vs vanilla)=nan
+[11:02:54] INFO step7:   fix_c τ=0.1: Δ=-0.047  p(vs id_only)=1e-09  p(vs vanilla)=0.38
+[11:02:54] INFO step7:   fix_c τ=0.2: Δ=-0.051  p(vs id_only)=8.3e-10  p(vs vanilla)=0.91
+[11:02:54] INFO step7:   fix_c τ=0.3: Δ=-0.046  p(vs id_only)=9.5e-11  p(vs vanilla)=0.58
+[11:02:54] INFO step7:   fix_c τ=0.5: Δ=-0.022  p(vs id_only)=3.7e-11  p(vs vanilla)=0.047
+[11:02:54] INFO step7: OOD=dtd alpha=0.9
+[11:03:31] INFO step7:   id_only Δ=+0.209
+[11:03:31] INFO step7:   fix_c τ=0.0: Δ=-0.003  p(vs id_only)=7.9e-11  p(vs vanilla)=nan
+[11:03:31] INFO step7:   fix_c τ=0.1: Δ=-0.008  p(vs id_only)=1.1e-13  p(vs vanilla)=0.55
+[11:03:31] INFO step7:   fix_c τ=0.2: Δ=-0.003  p(vs id_only)=6.9e-13  p(vs vanilla)=0.98
+[11:03:31] INFO step7:   fix_c τ=0.3: Δ=-0.013  p(vs id_only)=3.9e-15  p(vs vanilla)=0.62
+[11:03:31] INFO step7:   fix_c τ=0.5: Δ=-0.014  p(vs id_only)=9.1e-14  p(vs vanilla)=0.68
+[11:03:31] INFO step7: OOD=dtd alpha=0.5
+[11:04:00] INFO step7:   id_only Δ=+0.119
+[11:04:00] INFO step7:   fix_c τ=0.0: Δ=-0.055  p(vs id_only)=5.2e-16  p(vs vanilla)=nan
+[11:04:00] INFO step7:   fix_c τ=0.1: Δ=-0.050  p(vs id_only)=1.1e-16  p(vs vanilla)=0.36
+[11:04:00] INFO step7:   fix_c τ=0.2: Δ=-0.038  p(vs id_only)=1.2e-16  p(vs vanilla)=0.059
+[11:04:00] INFO step7:   fix_c τ=0.3: Δ=-0.027  p(vs id_only)=1.6e-16  p(vs vanilla)=0.01
+[11:04:00] INFO step7:   fix_c τ=0.5: Δ=-0.022  p(vs id_only)=4.8e-15  p(vs vanilla)=0.018
+[11:04:00] INFO step7: Done. Results in results/step7
+Saved: results/step7/pareto_svhn_gaussian_noise.png
+Saved: results/step7/pareto_dtd_gaussian_noise.png

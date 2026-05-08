@@ -1,0 +1,449 @@
+{
+  "results": {
+    "svhn": {
+      "0.9": {
+        "no_tta": {
+          "delta_auroc_mean": 0.0,
+          "delta_auroc_lo": 0.0,
+          "delta_auroc_hi": 0.0,
+          "auroc_T_mean": 0.5909003831417625,
+          "id_acc_T_mean": 0.660344827586207,
+          "delta_id_acc_mean": 0.0,
+          "n_batches": 30
+        },
+        "id_only": {
+          "delta_auroc_mean": 0.18754789272030656,
+          "delta_auroc_lo": 0.1618773946360154,
+          "delta_auroc_hi": 0.21207136015325667,
+          "auroc_T_mean": 0.7784482758620688,
+          "id_acc_T_mean": 0.6528735632183909,
+          "delta_id_acc_mean": -0.007471264367816088,
+          "n_batches": 30
+        },
+        "fix_c_0.0": {
+          "delta_auroc_mean": -0.042816091954023,
+          "delta_auroc_lo": -0.09962643678160918,
+          "delta_auroc_hi": 0.015615421455938678,
+          "auroc_T_mean": 0.5480842911877395,
+          "id_acc_T_mean": 0.6637931034482759,
+          "delta_id_acc_mean": 0.0034482758620689724,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -7.535462914546105,
+            "p": 2.6310439887848705e-08
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": NaN,
+            "p": NaN
+          }
+        },
+        "fix_c_0.1": {
+          "delta_auroc_mean": -0.03199233716475095,
+          "delta_auroc_lo": -0.08104885057471263,
+          "delta_auroc_hi": 0.01935105363984673,
+          "auroc_T_mean": 0.5589080459770115,
+          "id_acc_T_mean": 0.6660919540229885,
+          "delta_id_acc_mean": 0.00574712643678161,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -7.838702234353032,
+            "p": 1.2070662660945094e-08
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 0.7548381469735342,
+            "p": 0.4564328496482357
+          }
+        },
+        "fix_c_0.2": {
+          "delta_auroc_mean": -0.055459770114942526,
+          "delta_auroc_lo": -0.0932016283524904,
+          "delta_auroc_hi": -0.017238984674329504,
+          "auroc_T_mean": 0.53544061302682,
+          "id_acc_T_mean": 0.6678160919540229,
+          "delta_id_acc_mean": 0.007471264367816092,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -10.117842139722772,
+            "p": 5.0560650267399314e-11
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": -0.5852946636611115,
+            "p": 0.562876729335012
+          }
+        },
+        "fix_c_0.3": {
+          "delta_auroc_mean": -0.05775862068965518,
+          "delta_auroc_lo": -0.0903280651340996,
+          "delta_auroc_hi": -0.0264367816091954,
+          "auroc_T_mean": 0.5331417624521072,
+          "id_acc_T_mean": 0.6626436781609196,
+          "delta_id_acc_mean": 0.0022988505747126445,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -10.02358462804037,
+            "p": 6.256225780113495e-11
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": -0.5261724637627001,
+            "p": 0.6027695846768821
+          }
+        },
+        "fix_c_0.5": {
+          "delta_auroc_mean": -0.0346743295019157,
+          "delta_auroc_lo": -0.056324233716475075,
+          "delta_auroc_hi": -0.015225095785440628,
+          "auroc_T_mean": 0.5562260536398469,
+          "id_acc_T_mean": 0.6695402298850576,
+          "delta_id_acc_mean": 0.009195402298850575,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -12.038910816362588,
+            "p": 8.375071511322139e-13
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 0.25975612287106736,
+            "p": 0.7968871847529959
+          }
+        }
+      },
+      "0.5": {
+        "no_tta": {
+          "delta_auroc_mean": 0.0,
+          "delta_auroc_lo": 0.0,
+          "delta_auroc_hi": 0.0,
+          "auroc_T_mean": 0.5760416666666667,
+          "id_acc_T_mean": 0.596875,
+          "delta_id_acc_mean": 0.0,
+          "n_batches": 30
+        },
+        "id_only": {
+          "delta_auroc_mean": 0.07747395833333333,
+          "delta_auroc_lo": 0.06282470703125,
+          "delta_auroc_hi": 0.09176839192708332,
+          "auroc_T_mean": 0.653515625,
+          "id_acc_T_mean": 0.6447916666666667,
+          "delta_id_acc_mean": 0.04791666666666667,
+          "n_batches": 30
+        },
+        "fix_c_0.0": {
+          "delta_auroc_mean": -0.05234375,
+          "delta_auroc_lo": -0.08095865885416667,
+          "delta_auroc_hi": -0.022782389322916687,
+          "auroc_T_mean": 0.5236979166666667,
+          "id_acc_T_mean": 0.6010416666666667,
+          "delta_id_acc_mean": 0.004166666666666667,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -7.949968912681198,
+            "p": 9.095313388182615e-09
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": NaN,
+            "p": NaN
+          }
+        },
+        "fix_c_0.1": {
+          "delta_auroc_mean": -0.0466796875,
+          "delta_auroc_lo": -0.07071044921875,
+          "delta_auroc_hi": -0.023372395833333334,
+          "auroc_T_mean": 0.5293619791666667,
+          "id_acc_T_mean": 0.603125,
+          "delta_id_acc_mean": 0.00625,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -8.828746117576339,
+            "p": 1.0290793788067864e-09
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 0.8987453812122658,
+            "p": 0.3761903337461002
+          }
+        },
+        "fix_c_0.2": {
+          "delta_auroc_mean": -0.05107421875,
+          "delta_auroc_lo": -0.0756201171875,
+          "delta_auroc_hi": -0.027603352864583337,
+          "auroc_T_mean": 0.5249674479166667,
+          "id_acc_T_mean": 0.6010416666666667,
+          "delta_id_acc_mean": 0.004166666666666667,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -8.916486967998683,
+            "p": 8.324761509342623e-10
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 0.11670434587727223,
+            "p": 0.9078988235037544
+          }
+        },
+        "fix_c_0.3": {
+          "delta_auroc_mean": -0.045735677083333336,
+          "delta_auroc_lo": -0.06438883463541667,
+          "delta_auroc_hi": -0.026752115885416695,
+          "auroc_T_mean": 0.5303059895833333,
+          "id_acc_T_mean": 0.5989583333333334,
+          "delta_id_acc_mean": 0.0020833333333333333,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -9.838312370537505,
+            "p": 9.54069505434721e-11
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 0.5566590880816445,
+            "p": 0.5820310738861337
+          }
+        },
+        "fix_c_0.5": {
+          "delta_auroc_mean": -0.022265625,
+          "delta_auroc_lo": -0.033724772135416664,
+          "delta_auroc_hi": -0.011945800781250003,
+          "auroc_T_mean": 0.5537760416666667,
+          "id_acc_T_mean": 0.5979166666666667,
+          "delta_id_acc_mean": 0.0010416666666666667,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -10.260768314792045,
+            "p": 3.6685598150501515e-11
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 2.0733921229448007,
+            "p": 0.04712383856582277
+          }
+        }
+      }
+    },
+    "dtd": {
+      "0.9": {
+        "no_tta": {
+          "delta_auroc_mean": 0.0,
+          "delta_auroc_lo": 0.0,
+          "delta_auroc_hi": 0.0,
+          "auroc_T_mean": 0.6717432950191571,
+          "id_acc_T_mean": 0.654022988505747,
+          "delta_id_acc_mean": 0.0,
+          "n_batches": 30
+        },
+        "id_only": {
+          "delta_auroc_mean": 0.20881226053639854,
+          "delta_auroc_lo": 0.18160680076628352,
+          "delta_auroc_hi": 0.23956178160919545,
+          "auroc_T_mean": 0.8805555555555554,
+          "id_acc_T_mean": 0.65,
+          "delta_id_acc_mean": -0.004022988505747116,
+          "n_batches": 30
+        },
+        "fix_c_0.0": {
+          "delta_auroc_mean": -0.002969348659003812,
+          "delta_auroc_lo": -0.05287835249042144,
+          "delta_auroc_hi": 0.04954262452107267,
+          "auroc_T_mean": 0.6687739463601533,
+          "id_acc_T_mean": 0.6528735632183906,
+          "delta_id_acc_mean": -0.0011494252873563205,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -9.922548596075854,
+            "p": 7.870752686799692e-11
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": NaN,
+            "p": NaN
+          }
+        },
+        "fix_c_0.1": {
+          "delta_auroc_mean": -0.007950191570881225,
+          "delta_auroc_lo": -0.05114942528735632,
+          "delta_auroc_hi": 0.03697796934865898,
+          "auroc_T_mean": 0.6637931034482758,
+          "id_acc_T_mean": 0.6551724137931033,
+          "delta_id_acc_mean": 0.0011494252873563205,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -13.056577632713518,
+            "p": 1.1354579946231629e-13
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": -0.6025311278843887,
+            "p": 0.5515035052464939
+          }
+        },
+        "fix_c_0.2": {
+          "delta_auroc_mean": -0.003400383141762438,
+          "delta_auroc_lo": -0.039944923371647484,
+          "delta_auroc_hi": 0.03376795977011494,
+          "auroc_T_mean": 0.6683429118773947,
+          "id_acc_T_mean": 0.6568965517241377,
+          "delta_id_acc_mean": 0.0028735632183908067,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -12.131715229263339,
+            "p": 6.946797041063187e-13
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": -0.028840775390051032,
+            "p": 0.9771891463720098
+          }
+        },
+        "fix_c_0.3": {
+          "delta_auroc_mean": -0.012547892720306498,
+          "delta_auroc_lo": -0.038321360153256705,
+          "delta_auroc_hi": 0.012840038314176221,
+          "auroc_T_mean": 0.6591954022988508,
+          "id_acc_T_mean": 0.6574712643678161,
+          "delta_id_acc_mean": 0.003448275862068965,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -14.906853466870835,
+            "p": 3.9441331583374566e-15
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": -0.5006218478185651,
+            "p": 0.6204156762756924
+          }
+        },
+        "fix_c_0.5": {
+          "delta_auroc_mean": -0.013793103448275845,
+          "delta_auroc_lo": -0.029406130268199215,
+          "delta_auroc_hi": 0.0016307471264367895,
+          "auroc_T_mean": 0.6579501915708811,
+          "id_acc_T_mean": 0.6591954022988505,
+          "delta_id_acc_mean": 0.005172413793103455,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -13.171157841687323,
+            "p": 9.130610009961507e-14
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": -0.41749081794554765,
+            "p": 0.6793942783785157
+          }
+        }
+      },
+      "0.5": {
+        "no_tta": {
+          "delta_auroc_mean": 0.0,
+          "delta_auroc_lo": 0.0,
+          "delta_auroc_hi": 0.0,
+          "auroc_T_mean": 0.66416015625,
+          "id_acc_T_mean": 0.6520833333333333,
+          "delta_id_acc_mean": 0.0,
+          "n_batches": 30
+        },
+        "id_only": {
+          "delta_auroc_mean": 0.11852213541666666,
+          "delta_auroc_lo": 0.10204915364583333,
+          "delta_auroc_hi": 0.13388753255208333,
+          "auroc_T_mean": 0.7826822916666667,
+          "id_acc_T_mean": 0.6677083333333333,
+          "delta_id_acc_mean": 0.015625,
+          "n_batches": 30
+        },
+        "fix_c_0.0": {
+          "delta_auroc_mean": -0.0552734375,
+          "delta_auroc_lo": -0.08121826171875,
+          "delta_auroc_hi": -0.028840332031250006,
+          "auroc_T_mean": 0.60888671875,
+          "id_acc_T_mean": 0.65625,
+          "delta_id_acc_mean": 0.004166666666666667,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -16.11910694465356,
+            "p": 5.175798043792991e-16
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": NaN,
+            "p": NaN
+          }
+        },
+        "fix_c_0.1": {
+          "delta_auroc_mean": -0.05029296875,
+          "delta_auroc_lo": -0.07662760416666667,
+          "delta_auroc_hi": -0.02541829427083336,
+          "auroc_T_mean": 0.6138671875,
+          "id_acc_T_mean": 0.6541666666666667,
+          "delta_id_acc_mean": 0.0020833333333333333,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -17.085623776206752,
+            "p": 1.1174527464692255e-16
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 0.9232263098729476,
+            "p": 0.3635074611956662
+          }
+        },
+        "fix_c_0.2": {
+          "delta_auroc_mean": -0.0380859375,
+          "delta_auroc_lo": -0.05797607421875,
+          "delta_auroc_hi": -0.019457194010416717,
+          "auroc_T_mean": 0.62607421875,
+          "id_acc_T_mean": 0.653125,
+          "delta_id_acc_mean": 0.0010416666666666667,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -17.047452270240658,
+            "p": 1.1855764688972195e-16
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 1.9691096200029388,
+            "p": 0.05856177936290866
+          }
+        },
+        "fix_c_0.3": {
+          "delta_auroc_mean": -0.026822916666666665,
+          "delta_auroc_lo": -0.04310384114583332,
+          "delta_auroc_hi": -0.010739746093750013,
+          "auroc_T_mean": 0.6373372395833333,
+          "id_acc_T_mean": 0.6572916666666667,
+          "delta_id_acc_mean": 0.005208333333333333,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -16.868449872147643,
+            "p": 1.567061432264921e-16
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 2.748705126032509,
+            "p": 0.010186871717475654
+          }
+        },
+        "fix_c_0.5": {
+          "delta_auroc_mean": -0.022135416666666668,
+          "delta_auroc_lo": -0.0325537109375,
+          "delta_auroc_hi": -0.01240152994791667,
+          "auroc_T_mean": 0.6420247395833333,
+          "id_acc_T_mean": 0.6479166666666667,
+          "delta_id_acc_mean": -0.004166666666666667,
+          "n_batches": 30,
+          "paired_vs_id_only": {
+            "t": -14.797666927772303,
+            "p": 4.765704066125047e-15
+          },
+          "paired_vs_vanilla_mixed": {
+            "t": 2.5157201981824358,
+            "p": 0.01767072987574159
+          }
+        }
+      }
+    }
+  },
+  "config": {
+    "ckpt": "checkpoints/resnet18_cifar10.pt",
+    "data_root": "data",
+    "out": "results/step7",
+    "corruption": "gaussian_noise",
+    "alphas": [
+      0.9,
+      0.5
+    ],
+    "oods": [
+      "svhn",
+      "dtd"
+    ],
+    "severity": 5,
+    "steps": 20,
+    "batches": 30,
+    "batch_size": 64,
+    "lr": 0.001,
+    "seed": 0,
+    "smoke": false
+  }
+}

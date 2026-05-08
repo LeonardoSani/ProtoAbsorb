@@ -1,0 +1,66 @@
+[11:01:01] INFO step3: Device: cuda
+[11:01:01] INFO step3: alpha=0.9
+[11:01:22] INFO step3:   detector=msp
+[11:01:22] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.642
+[11:01:22] INFO step3:     id_only  Delta = +0.192 [+0.170, +0.215] AUROC(T)=0.833
+[11:01:22] INFO step3:     mixed    Delta = +0.016 [-0.008, +0.040] AUROC(T)=0.658
+[11:01:22] INFO step3:     paired t-test mixed vs id_only: t=-13.58 p=4.26e-14
+[11:01:22] INFO step3:   detector=energy
+[11:01:22] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.612
+[11:01:22] INFO step3:     id_only  Delta = +0.186 [+0.167, +0.206] AUROC(T)=0.798
+[11:01:22] INFO step3:     mixed    Delta = -0.011 [-0.031, +0.009] AUROC(T)=0.601
+[11:01:22] INFO step3:     paired t-test mixed vs id_only: t=-17.67 p=4.54e-17
+[11:01:22] INFO step3:   detector=mahalanobis
+[11:01:22] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.847
+[11:01:22] INFO step3:     id_only  Delta = +0.066 [+0.056, +0.077] AUROC(T)=0.914
+[11:01:22] INFO step3:     mixed    Delta = +0.018 [+0.001, +0.033] AUROC(T)=0.865
+[11:01:22] INFO step3:     paired t-test mixed vs id_only: t=-6.11 p=1.18e-06
+[11:01:23] INFO step3: alpha=0.75
+[11:01:43] INFO step3:   detector=msp
+[11:01:43] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.642
+[11:01:43] INFO step3:     id_only  Delta = +0.153 [+0.136, +0.171] AUROC(T)=0.795
+[11:01:43] INFO step3:     mixed    Delta = +0.032 [+0.009, +0.055] AUROC(T)=0.674
+[11:01:43] INFO step3:     paired t-test mixed vs id_only: t=-8.79 p=1.14e-09
+[11:01:43] INFO step3:   detector=energy
+[11:01:43] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.650
+[11:01:43] INFO step3:     id_only  Delta = +0.133 [+0.119, +0.148] AUROC(T)=0.783
+[11:01:43] INFO step3:     mixed    Delta = -0.005 [-0.027, +0.016] AUROC(T)=0.645
+[11:01:43] INFO step3:     paired t-test mixed vs id_only: t=-12.38 p=4.27e-13
+[11:01:43] INFO step3:   detector=mahalanobis
+[11:01:43] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.699
+[11:01:43] INFO step3:     id_only  Delta = +0.058 [+0.049, +0.069] AUROC(T)=0.757
+[11:01:43] INFO step3:     mixed    Delta = -0.001 [-0.014, +0.011] AUROC(T)=0.697
+[11:01:43] INFO step3:     paired t-test mixed vs id_only: t=-6.72 p=2.27e-07
+[11:01:43] INFO step3: alpha=0.5
+[11:02:09] INFO step3:   detector=msp
+[11:02:09] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.648
+[11:02:09] INFO step3:     id_only  Delta = +0.080 [+0.061, +0.100] AUROC(T)=0.727
+[11:02:09] INFO step3:     mixed    Delta = +0.020 [+0.001, +0.039] AUROC(T)=0.668
+[11:02:09] INFO step3:     paired t-test mixed vs id_only: t=-4.98 p=2.66e-05
+[11:02:09] INFO step3:   detector=energy
+[11:02:09] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.669
+[11:02:09] INFO step3:     id_only  Delta = +0.075 [+0.061, +0.090] AUROC(T)=0.743
+[11:02:09] INFO step3:     mixed    Delta = +0.006 [-0.011, +0.022] AUROC(T)=0.674
+[11:02:09] INFO step3:     paired t-test mixed vs id_only: t=-6.59 p=3.19e-07
+[11:02:09] INFO step3:   detector=mahalanobis
+[11:02:09] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.547
+[11:02:09] INFO step3:     id_only  Delta = +0.028 [+0.015, +0.040] AUROC(T)=0.574
+[11:02:09] INFO step3:     mixed    Delta = -0.003 [-0.017, +0.011] AUROC(T)=0.543
+[11:02:09] INFO step3:     paired t-test mixed vs id_only: t=-3.36 p=0.00221
+[11:02:09] INFO step3: alpha=0.25
+[11:02:45] INFO step3:   detector=msp
+[11:02:45] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.646
+[11:02:45] INFO step3:     id_only  Delta = +0.018 [-0.003, +0.038] AUROC(T)=0.664
+[11:02:45] INFO step3:     mixed    Delta = +0.006 [-0.021, +0.036] AUROC(T)=0.653
+[11:02:45] INFO step3:     paired t-test mixed vs id_only: t=-0.78 p=0.441
+[11:02:45] INFO step3:   detector=energy
+[11:02:45] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.686
+[11:02:45] INFO step3:     id_only  Delta = +0.024 [+0.011, +0.036] AUROC(T)=0.711
+[11:02:45] INFO step3:     mixed    Delta = -0.003 [-0.022, +0.018] AUROC(T)=0.684
+[11:02:45] INFO step3:     paired t-test mixed vs id_only: t=-2.41 p=0.0226
+[11:02:45] INFO step3:   detector=mahalanobis
+[11:02:45] INFO step3:     no_tta   Delta = +0.000 [+0.000, +0.000] AUROC(T)=0.409
+[11:02:45] INFO step3:     id_only  Delta = -0.016 [-0.032, -0.001] AUROC(T)=0.393
+[11:02:45] INFO step3:     mixed    Delta = +0.016 [+0.001, +0.031] AUROC(T)=0.425
+[11:02:45] INFO step3:     paired t-test mixed vs id_only: t=3.56 p=0.00129
+[11:02:45] INFO step3: Done. Results in results/step3_places365

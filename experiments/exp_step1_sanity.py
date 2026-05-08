@@ -94,7 +94,8 @@ def cli() -> None:
                         help="Centroid bank for Mahalanobis (optional).")
     parser.add_argument("--data-root", default="data")
     parser.add_argument("--out", default="results/step1")
-    parser.add_argument("--ood", default="svhn", choices=["svhn", "cifar100"])
+    parser.add_argument("--ood", default="svhn",
+                        choices=["svhn", "cifar100", "dtd", "places365"])
     parser.add_argument("--severity", type=int, default=5)
     parser.add_argument("--corruptions", nargs="+",
                         default=list(CIFAR10_C_CORRUPTIONS))

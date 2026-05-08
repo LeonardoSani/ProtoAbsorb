@@ -1,0 +1,4 @@
+[11:01:55] INFO step4: Device: cuda
+[11:01:55] INFO step4: == 4-panel mechanism, alpha=0.5 ==
+[11:02:22] INFO step4: == Pareto: deltaID-acc vs deltaAUROC over (method, alpha, step) ==
+[11:03:19] INFO step4: Done. Results in results/step4_dtd

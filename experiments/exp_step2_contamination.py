@@ -146,7 +146,8 @@ def cli() -> None:
                         default=["fog", "impulse_noise", "elastic_transform", "pixelate"])
     parser.add_argument("--alphas", type=float, nargs="+", default=list(ALPHAS))
     parser.add_argument("--severity", type=int, default=5)
-    parser.add_argument("--ood", default="svhn", choices=["svhn", "cifar100"])
+    parser.add_argument("--ood", default="svhn",
+                        choices=["svhn", "cifar100", "dtd", "places365"])
     parser.add_argument("--steps", type=int, default=DEFAULT_T)
     parser.add_argument("--batches", type=int, default=30,
                         help="Independent batch draws per cell (target 30-50).")
