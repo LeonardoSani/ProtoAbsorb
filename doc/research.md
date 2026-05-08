@@ -371,6 +371,14 @@ Fixed α=0.9, 15 points (3 OODs × 5 corruptions):
 - **Panel B** (id_only Δ vs paired_gap): r=+0.723, p=0.002. Paired gap best predicted by
   how much adaptation id_only TENT delivers. **Strong positive. This is the theory-confirming figure.**
 
+**Why Panel B holds theoretically:** Severe corruption confuses the model more → id-only
+TTA delivers a larger AUROC improvement → but a mixed batch under the same corruption also
+generates stronger gradient signal from OOD samples (more confused predictions = larger
+entropy gradient magnitudes) → larger contamination penalty. Both the benefit and the
+contamination scale with corruption severity; the contamination consistently outpaces the
+benefit (gap/id_only ratio = 1.67 for BN-TENT), so the net effect of mixed adaptation is
+always worse than id-only, and worse by more when the corruption is harder.
+
 **Narrative revision:** The original "paired gap scales positively with pre-TTA separability"
 claim is not supported. Correct claim: "paired gap scales with adaptation benefit available
 (id_only Δ), which in turn scales with corruption severity."
