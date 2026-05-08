@@ -263,22 +263,41 @@ even when OOD-like samples are excluded from the gradient.
 ### Ablation A — BatchNorm vs InstanceNorm ✓
 
 **Goal:** Quantify how much of the contamination penalty is BN-statistics contamination
-vs. gradient contamination.
+vs. gradient contamination alone.
 
-**Protocol:** SVHN, α=0.5, gaussian_noise sev-5, n=30. Compare BN-TENT (original) vs.
-IN-TENT (bn_to_in deepcopy, same checkpoint weights — per-sample statistics, no batch mixing).
+**Protocol:** SVHN, α=0.5, gaussian_noise sev-5, n=30. BN-TENT = original model.
+IN-TENT = `bn_to_in` deepcopy of same checkpoint (γ/β copied, per-sample statistics,
+no batch mixing). Same paired batches across conditions.
 
-| Model | Norm | Paired gap (id_only − mixed) | vs baseline |
-|---|---|---|---|
-| ResNet-18 | BatchNorm | +0.130 | — |
-| ResNet-18 | InstanceNorm | +0.014 | p=1.2e-07 |
+| | id_only ΔAUROC | mixed ΔAUROC | paired gap (id_only − mixed) | paired p |
+|---|---|---|---|---|
+| BN-TENT | +0.0775 [+0.063, +0.092] | −0.0523 [−0.081, −0.023] | +0.1298 | 9.1e-09 |
+| IN-TENT | +0.0106 [+0.008, +0.013] | −0.0038 [−0.007, −0.001] | +0.0144 | 6.1e-17 |
 
-**Reduction: 88.9%**
+**BN gap vs IN gap: t=7.06 (independent samples), p=2.3e-09. Reduction: 88.9%.**
 
-**Verdict:** BatchNorm statistics contamination accounts for ~89% of the contamination penalty.
-Gradient contamination alone contributes ~11%. This explains why Fix A and Fix C both fail:
-both keep BN in the adaptation loop. The primary remedy is per-sample normalization (IN, LN)
-or instance-level adaptation objectives that do not share statistics across samples.
+**Confound — IN adapts less overall:** id_only ΔAUROC drops from +0.077 (BN) to +0.011 (IN),
+a 86% reduction in base adaptation power. IN computes per-sample statistics, which are
+noisier estimates than batch statistics, making γ/β updates less effective.
+
+Contamination penalty as a fraction of adaptation gain (gap / id_only Δ):
+- BN: 0.130 / 0.077 = **1.67** — contamination costs 167% of what adaptation gains
+- IN: 0.014 / 0.011 = **1.36** — contamination costs 136% of what adaptation gains
+
+The ratios are similar, meaning IN is only proportionally slightly less contaminated per
+unit of adaptation. However, the **absolute** degradation for IN mixed-TENT is −0.004
+(negligible) while BN is −0.052 (large and significant). In practice, IN eliminates the
+observable degradation — but also most of the adaptation benefit.
+
+**Verdict:** Shared BN statistics account for ~89% of the contamination penalty. Gradient
+contamination alone (the only pathway remaining in IN-TENT) contributes ~11%. This explains
+why Fix A (gradient weighting) and Fix C (sample filtering) both fail: they modify the
+gradient pathway but leave BN in the adaptation loop, leaving ~89% of the mechanism intact.
+
+**Practical implication:** The solution is not to swap BN for IN — that sacrifices most of
+the adaptation benefit (id_only gain: 0.077 → 0.011). A complete solution requires an
+adaptation method that achieves BN-level gains without sharing normalization statistics
+across ID and OOD samples in the batch.
 
 ---
 
