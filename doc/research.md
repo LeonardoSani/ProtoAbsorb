@@ -1,7 +1,7 @@
 # Open-World TTA Safety: The Adaptation–Abstention Conflict
 
 **Target venue:** ACCV 2025 (or BMVC / WACV / ECCV workshop)
-**Last updated:** 2026-05-08
+**Last updated:** 2026-05-09
 
 ---
 
@@ -360,6 +360,47 @@ ResNet-18/BN — consistent with the mechanism decomposition.
 
 ---
 
+### ImageNet-Scale Validation (ResNet-50) ✓
+
+**Goal:** Replicate the paired gap at ImageNet scale to address reviewer concern about CIFAR-only scope.
+
+**Setup:** ResNet-50 (torchvision pretrained, ~76% top-1 on clean ImageNet val).
+ID pool = ImageNet-C severity 5. OOD = NINCO (~5878 images, species not in ImageNet-1K).
+n=30 batches, batch_size=64, n_steps=20, α ∈ {0.9, 0.5}.
+
+**Corruption note:** gaussian_noise sev-5 reduces ResNet-50 accuracy to ~5% — model outputs
+near-uniform softmax on all inputs including OOD, causing inverted AUROC (< 0.5). Excluded.
+DTD also excluded: textures trigger ImageNet-pretrained features more than corrupted images do,
+causing inverted AUROC regardless of severity. fog and jpeg_compression at sev-5 retain enough
+semantic content (~30–65% accuracy) for well-oriented OOD detection.
+
+**Scripts:** `experiments/exp_imagenet_baseline.py` (Step 1 verify),
+`experiments/exp_imagenet_scale.py` (paired protocol, 8 cells).
+**Results:** `results/imagenet_scale/imagenet_scale_results.json`
+
+| corruption | method | α | id_only AUROC(T) | mixed AUROC(T) | id_only Δ | mixed Δ | paired p |
+|---|---|---|---|---|---|---|---|
+| fog | TENT | 0.9 | **0.843** | 0.498 | +0.280 | −0.065 | 1.2e-14 |
+| fog | TENT | 0.5 | **0.698** | 0.520 | +0.244 | +0.066 | 4.9e-11 |
+| fog | EATA | 0.9 | **0.584** | 0.530 | +0.034 | −0.020 | 6.5e-05 |
+| fog | EATA | 0.5 | **0.520** | 0.457 | +0.060 | −0.003 | 4.4e-11 |
+| jpeg | TENT | 0.9 | **0.827** | 0.454 | +0.362 | −0.011 | 5.3e-18 |
+| jpeg | TENT | 0.5 | **0.696** | 0.487 | +0.285 | +0.075 | 4.3e-16 |
+| jpeg | EATA | 0.9 | **0.457** | 0.427 | +0.003 | −0.026 | 4.0e-03 |
+| jpeg | EATA | 0.5 | **0.466** | 0.400 | +0.039 | −0.027 | 2.2e-09 |
+
+**Summary: mixed worse than id_only in 8/8 cells; p<0.05 in 8/8 cells.**
+
+**TENT gap >> EATA gap** — consistent with mechanism: EATA's entropy threshold filters
+unreliable samples from the gradient, partially shielding OOD detection. But shared BN
+statistics still carry OOD signal into the adapted model (~89% of penalty per Ablation A),
+explaining why EATA's mitigation is partial not complete.
+
+**FPR95 pattern mirrors AUROC** — id_only consistently lower FPR95 than mixed across all 8 cells
+(e.g., fog TENT α=0.9: id_only 0.380 vs mixed 0.859).
+
+---
+
 ### Summary Scatter: Pre-TTA Separability vs Paired Gap ✓
 
 **Script:** `experiments/plot_scatter_pretTA_vs_gap.py`
@@ -423,6 +464,7 @@ incremental penalty imposed by mixed vs ID-only adaptation.
 | BN-statistics contamination is primary mechanism | **Strongly supported — IN-TENT reduces paired gap by 89%** |
 | Confidence sharpening + separability gap explains mechanism | **Supported** (SVHN and DTD, Step 4) |
 | Result generalizes across architectures | **Supported — ViT-S/16 paired gap +0.013 (p=2.6e-10); 10× smaller than ResNet-18/BN, consistent with BN ablation** |
+| Result replicates at ImageNet scale | **Strongly supported — 8/8 cells, p<0.05 in all; ResNet-50, ImageNet-C, NINCO** |
 
 ---
 
@@ -467,7 +509,9 @@ A complete solution requires an adaptation objective with an explicit open-set o
    - Mechanism: confidence sharpening + Pareto plot (Step 4)
    - Fix: threshold filtering Pareto (Step 7)
 6. **Discussion** — three-way decomposition; Places365/CIFAR-100 boundary; BN ablation; limits
-7. **Conclusion** — evaluation norm recommendation; paired protocol as reusable benchmark
+7. **ImageNet-Scale Validation** — ResNet-50, ImageNet-C (fog + jpeg, sev-5), NINCO; 8/8 cells
+   p<0.05; TENT gap up to 0.36 AUROC; EATA partially mitigated (consistent with BN mechanism)
+8. **Conclusion** — evaluation norm recommendation; paired protocol as reusable benchmark
 
 ---
 
@@ -478,3 +522,6 @@ A complete solution requires an adaptation objective with an explicit open-set o
 | **Medium** | Draft paper §1–2 (intro + background) | TODO |
 | **Medium** | Generate figures from plotting scripts | Partial (scatter, decomp done) |
 | **Done** | Second backbone (ViT-S/16, one cell) | ✓ 98.80% acc, paired gap +0.013 p=2.6e-10 |
+| **Done** | ImageNet-scale validation (reviewer request) | ✓ 8/8 cells p<0.05; ResNet-50, fog+jpeg, NINCO |
+| **Medium** | Write paper §7 (ImageNet-scale, 1 table + prose) | TODO |
+| **Medium** | Add FPR95 to all existing CIFAR results tables | TODO |

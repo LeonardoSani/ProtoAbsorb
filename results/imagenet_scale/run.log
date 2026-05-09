@@ -1,0 +1,12 @@
+[08:17:09] INFO imagenet_scale: Device: cuda
+[08:17:09] INFO imagenet_scale: Matrix: 2 corruptions × 1 OODs × 2 methods × 2 alphas = 8 cells
+[08:17:09] INFO imagenet_scale:   n_batches=30, n_steps=20, batch_size=64
+[08:17:09] INFO imagenet_scale: [1/8] corruption=fog  ood=ninco  method=tent  alpha=0.9
+[08:18:29] INFO imagenet_scale:   no_tta    AUROC(T)=0.5740  FPR95(T)=0.7391  Δ-AUROC=+0.0000 [+0.0000, +0.0000]
+[08:18:29] INFO imagenet_scale:   id_only   AUROC(T)=0.8466  FPR95(T)=0.4236  Δ-AUROC=+0.2725 [+0.2458, +0.3024]
+[08:18:29] INFO imagenet_scale:   mixed     AUROC(T)=0.4952  FPR95(T)=0.8563  Δ-AUROC=-0.0788 [-0.1259, -0.0345]  p=8.03e-15
+[08:18:29] INFO imagenet_scale: [2/8] corruption=fog  ood=ninco  method=tent  alpha=0.5
+[08:19:38] INFO imagenet_scale:   no_tta    AUROC(T)=0.4826  FPR95(T)=0.8771  Δ-AUROC=+0.0000 [+0.0000, +0.0000]
+[08:19:38] INFO imagenet_scale:   id_only   AUROC(T)=0.7287  FPR95(T)=0.6885  Δ-AUROC=+0.2461 [+0.2309, +0.2619]
+[08:19:38] INFO imagenet_scale:   mixed     AUROC(T)=0.5391  FPR95(T)=0.8885  Δ-AUROC=+0.0564 [+0.0337, +0.0789]  p=5.77e-16
+[08:19:38] INFO imagenet_scale: [3/8] corruption=fog  ood=ninco  method=eata  alpha=0.9

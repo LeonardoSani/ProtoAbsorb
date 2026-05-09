@@ -136,6 +136,13 @@ def auroc_from_eval(eval_out: dict, score_key: str = "msp") -> float:
     return auroc(s[~is_ood], s[is_ood])
 
 
+def fpr95_from_eval(eval_out: dict, score_key: str = "msp") -> float:
+    from proto_absorb.metrics import fpr95
+    s = eval_out[score_key]
+    is_ood = eval_out["is_ood"].astype(bool)
+    return fpr95(s[~is_ood], s[is_ood])
+
+
 def id_accuracy_from_eval(eval_out: dict) -> float:
     is_ood = eval_out["is_ood"].astype(bool)
     if (~is_ood).sum() == 0:
@@ -203,6 +210,8 @@ def run_condition_on_batch(
     centroids: Optional[torch.Tensor] = None,
     fix_a: bool = False,
     eata_state_factory: Optional[Callable[[], EataState]] = None,
+    model_factory: Optional[Callable[[], tuple[torch.nn.Module, torch.optim.Optimizer]]] = None,
+    eata_e0: Optional[float] = None,
 ) -> dict:
     """Run a single condition on a single shared batch and return per-step
     eval traces.
@@ -221,14 +230,17 @@ def run_condition_on_batch(
         variant=TentVariant.FIX_A_WEIGHTED if fix_a else TentVariant.VANILLA,
         lr=lr,
     )
-    model, opt = fresh_tent_model(ckpt_path, device, cfg)
+    if model_factory is not None:
+        model, opt = model_factory()
+    else:
+        model, opt = fresh_tent_model(ckpt_path, device, cfg)
     batch = batch.to(device)
 
     eata_state: Optional[EataState] = None
     eata_cfg: Optional[EataConfig] = None
     if tta_method == "eata":
         eata_state = (eata_state_factory or EataState)()
-        eata_cfg = EataConfig(lr=lr)
+        eata_cfg = EataConfig(lr=lr) if eata_e0 is None else EataConfig(lr=lr, e0=eata_e0)
         # rebuild optimizer to honor EataConfig.lr (same as TentConfig.lr here)
         from proto_absorb.tent import collect_bn_params, make_optimizer
         params, _ = collect_bn_params(model)
@@ -236,6 +248,7 @@ def run_condition_on_batch(
 
     n = n_steps if condition != "no_tta" else 0
     msp_curve, energy_curve, acc_curve = [], [], []
+    msp_fpr95_curve, energy_fpr95_curve = [], []
     ent_ood_curve, max_p_ood_curve, feats_norm_ood_curve = [], [], []
     msp_id_mean_curve, msp_ood_mean_curve = [], []
     for t in range(n + 1):
@@ -243,6 +256,8 @@ def run_condition_on_batch(
         is_ood = ev["is_ood"].astype(bool)
         msp_curve.append(auroc_from_eval(ev, "msp"))
         energy_curve.append(auroc_from_eval(ev, "energy"))
+        msp_fpr95_curve.append(fpr95_from_eval(ev, "msp"))
+        energy_fpr95_curve.append(fpr95_from_eval(ev, "energy"))
         acc_curve.append(id_accuracy_from_eval(ev))
         H, mx, fn = ev["entropy"], ev["max_p"], ev["feat_norm"]
         ent_ood_curve.append(float(H[is_ood].mean()) if is_ood.any() else float("nan"))
@@ -272,6 +287,8 @@ def run_condition_on_batch(
     return {
         "msp_auroc": np.array(msp_curve),
         "energy_auroc": np.array(energy_curve),
+        "msp_fpr95": np.array(msp_fpr95_curve),
+        "energy_fpr95": np.array(energy_fpr95_curve),
         "id_acc": np.array(acc_curve),
         "ood_entropy": np.array(ent_ood_curve),
         "ood_max_p": np.array(max_p_ood_curve),
@@ -314,7 +331,7 @@ def paired_t_test(a: Sequence[float], b: Sequence[float]) -> tuple[float, float]
 __all__ = [
     "ALPHAS", "DEFAULT_T", "DEFAULT_BATCH_SIZE",
     "fresh_tent_model", "make_sampler", "evaluate_batch",
-    "auroc_from_eval", "id_accuracy_from_eval", "setup_matplotlib",
+    "auroc_from_eval", "fpr95_from_eval", "id_accuracy_from_eval", "setup_matplotlib",
     "save_json",
     "draw_paired_batches", "run_condition_on_batch",
     "bootstrap_ci", "paired_t_test",

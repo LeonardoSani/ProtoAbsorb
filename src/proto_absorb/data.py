@@ -28,6 +28,13 @@ CIFAR10_STD = (0.2470, 0.2435, 0.2616)
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD  = (0.229, 0.224, 0.225)
 
+IMAGENET_C_CORRUPTIONS: tuple[str, ...] = (
+    "gaussian_noise", "shot_noise", "impulse_noise",
+    "defocus_blur", "glass_blur", "motion_blur", "zoom_blur",
+    "snow", "frost", "fog", "brightness", "contrast",
+    "elastic_transform", "pixelate", "jpeg_compression",
+)
+
 CIFAR10_C_CORRUPTIONS: tuple[str, ...] = (
     "gaussian_noise",
     "shot_noise",
@@ -234,6 +241,117 @@ def places365_ood(data_root: str, split: str = "test") -> Dataset:
         download=True,
     )
     return _OODWrapper(base)
+
+
+# ---------------------------------------------------------------------------
+# ImageNet-scale datasets (224×224)
+# ---------------------------------------------------------------------------
+
+def imagenet_eval_transform() -> T.Compose:
+    """Standard ImageNet eval: resize 256, center-crop 224, ImageNet normalize."""
+    return T.Compose([
+        T.Resize(256),
+        T.CenterCrop(224),
+        T.ToTensor(),
+        T.Normalize(IMAGENET_MEAN, IMAGENET_STD),
+    ])
+
+
+class ImageNetC(Dataset):
+    """ImageNet-C for one corruption / severity.
+
+    Expected layout: ``<data_root>/ImageNet-C/<corruption>/<severity>/<wnid>/...``
+    """
+
+    def __init__(self, data_root: str, corruption: str, severity: int = 5,
+                 transform: Optional[T.Compose] = None):
+        if corruption not in IMAGENET_C_CORRUPTIONS:
+            raise ValueError(f"Unknown ImageNet-C corruption '{corruption}'.")
+        path = Path(data_root) / "ImageNet-C" / corruption / str(severity)
+        if not path.exists():
+            raise FileNotFoundError(
+                f"ImageNet-C not found at {path}. "
+                "Download from https://zenodo.org/record/2235448"
+            )
+        self._ds = torchvision.datasets.ImageFolder(
+            str(path), transform=transform or imagenet_eval_transform()
+        )
+
+    def __len__(self) -> int:
+        return len(self._ds)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        return self._ds[idx]
+
+
+class NincoOOD(Dataset):
+    """NINCO OOD dataset wrapped so labels are always -1.
+
+    Expected layout: ``<data_root>/NINCO/NINCO_OOD_classes/<class>/...``
+    Falls back to ``<data_root>/NINCO/<class>/...`` if the inner directory is absent.
+    """
+
+    def __init__(self, data_root: str, transform: Optional[T.Compose] = None):
+        tf = transform or imagenet_eval_transform()
+        for subpath in [
+            Path(data_root) / "NINCO" / "NINCO_OOD_classes",
+            Path(data_root) / "NINCO" / "NINCO" / "NINCO_OOD_classes",
+            Path(data_root) / "NINCO",
+        ]:
+            if subpath.exists() and any(subpath.iterdir()):
+                base = torchvision.datasets.ImageFolder(str(subpath), transform=tf)
+                self._ds = _OODWrapper(base)
+                return
+        raise FileNotFoundError(
+            f"NINCO not found under {data_root}. "
+            "Download from https://github.com/j-cb/NINCO"
+        )
+
+    def __len__(self) -> int:
+        return len(self._ds)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        return self._ds[idx]
+
+
+def dtd_ood_224(data_root: str, split: str = "test") -> Dataset:
+    """DTD (Describable Textures) at 224×224 with ImageNet normalization."""
+    base = torchvision.datasets.DTD(
+        root=data_root,
+        split="test" if split == "test" else "train",
+        transform=imagenet_eval_transform(),
+        download=True,
+    )
+    return _OODWrapper(base)
+
+
+def imagenet_val_dataset(data_root: str) -> Dataset:
+    """ImageNet validation set (50k images).
+
+    Tries ``<data_root>/imagenet/val`` then ``<data_root>/val``.
+    """
+    for subpath in [
+        Path(data_root) / "imagenet" / "val",
+        Path(data_root) / "val",
+    ]:
+        if subpath.exists():
+            return torchvision.datasets.ImageFolder(
+                str(subpath), transform=imagenet_eval_transform()
+            )
+    raise FileNotFoundError(
+        f"ImageNet val not found under {data_root}. "
+        "Expected layout: <data_root>/imagenet/val/<wnid>/..."
+    )
+
+
+def get_ood_dataset_224(name: str, data_root: str) -> Dataset:
+    """Return a 224×224 OOD dataset (labels always -1)."""
+    name = name.lower()
+    if name == "ninco":
+        return NincoOOD(data_root)
+    if name == "dtd":
+        return dtd_ood_224(data_root)
+    raise ValueError(f"Unknown 224×224 OOD dataset '{name}'. Choices: ninco, dtd")
 
 
 def get_ood_dataset(name: str, data_root: str, split: str = "test") -> Dataset:
