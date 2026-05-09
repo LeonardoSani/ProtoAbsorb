@@ -1,0 +1,73 @@
+\section{The Paired Contamination Protocol}
+\label{sec:protocol}
+
+\subsection{Problem Setup}
+
+Let $f_\theta : \calX \to \R^C$ be a classifier with parameters $\theta$.
+At test time, batches $\calB = \calB_{\text{ID}} \cup \calB_{\text{OOD}}$ arrive sequentially, where $|\calB_{\text{ID}}| = \alpha B$ and $|\calB_{\text{OOD}}| = (1-\alpha)B$ for batch size $B$ and ID fraction $\alpha \in (0,1)$.
+$\calB_{\text{ID}}$ contains corrupted images from the source distribution; $\calB_{\text{OOD}}$ contains images from an entirely different category set.
+The ID fraction $\alpha$ is unknown to the model.
+
+TENT \citep{tent} updates the BatchNorm affine parameters $\gamma, \beta$ by minimizing:
+\begin{equation}
+  \mathcal{L}_{\text{TENT}} = \frac{1}{|\calB|} \sum_{x \in \calB} H(p_x), \quad H(p) = -\sum_c p_c \log p_c
+  \label{eq:tent_loss}
+\end{equation}
+where $p_x = \text{softmax}(f_\theta(x))$.
+Since $H(p)$ is minimized when $p$ is one-hot, this gradient sharpens every prediction toward its current argmax class.
+OOD detectors such as MSP $= \max_c p_c$ rely on OOD inputs having \emph{low} $\max_c p_c$.
+The objectives are in direct conflict on OOD samples in $\calB_{\text{OOD}}$.
+
+\begin{observation}
+\label{obs:conflict}
+For uncertainty-based OOD detectors of the kind studied here, applying entropy minimization indiscriminately to mixed ID/OOD batches increases confidence on OOD samples as well as ID samples, tending to collapse the ID/OOD score gap unless OOD samples are excluded from the adaptation loss.
+\end{observation}
+
+\subsection{Paired Contamination Protocol}
+
+We define three conditions applied to the same drawn batch $\calB$:
+
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item $\nota$: evaluate at $t=0$, no adaptation. Measures pre-adaptation AUROC.
+  \item $\idonly$: adapt using $\mathcal{L}_{\text{TENT}}$ on $\calB_{\text{ID}}$ only. Requires ground-truth ID/OOD labels (oracle; unrealizable in deployment).
+  \item $\mixed$: adapt using $\mathcal{L}_{\text{TENT}}$ on the full $\calB$. Realistic deployment condition.
+\end{itemize}
+
+The same random seed draws identical batches across all three conditions.
+We run $n = 30$ independent batch draws per experimental cell and report:
+\begin{align}
+  \DeltaA(\cdot) &= \text{AUROC}(T) - \text{AUROC}(0) \label{eq:delta_auroc}\\
+  \gap &= \DeltaA(\idonly) - \DeltaA(\mixed) \label{eq:gap}\\
+  \forfeit &= \gap / \DeltaA(\idonly) \label{eq:forfeit}
+\end{align}
+with 95\% bootstrap CIs and a paired $t$-test.
+The gap $\gap$ is the contamination cost: how much OOD-detection improvement is forfeited by using the full mixed batch instead of the clean ID oracle.
+The forfeit fraction $\forfeit > 1$ indicates that mixed adaptation leaves OOD detection \emph{worse} than no adaptation.
+
+\paragraph{The id-only oracle.}
+$\idonly$ TENT is a diagnostic oracle, not a deployable method.
+It requires ground-truth knowledge of which samples are ID versus OOD---precisely what an OOD detector is designed to produce.
+Its role is to establish a measurable upper bound on OOD-detection improvement under zero contamination, providing a calibrated reference for the contamination cost.
+
+\subsection{Four-Condition Mechanistic Decomposition}
+
+To isolate the dominant mechanism, we introduce four conditions that incrementally add contamination components:
+
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item $\idsub$: adapt on ID slice of size $\alpha B$ (oracle, count-matched).
+  \item $\idfull$: pad with extra corrupted ID images to full size $B$ (count control).
+  \item $\ml$: forward pass on full $\calB$ (BatchNorm sees all images, including OOD), but entropy loss computed only on $\calB_{\text{ID}}$.
+  \item $\mixed$: forward pass and entropy loss on full $\calB$ (realistic).
+\end{itemize}
+
+The additive decomposition is:
+\begin{equation}
+  \underbrace{\DeltaA(\idsub) - \DeltaA(\mixed)}_{\text{total gap}}
+  = \underbrace{[\idsub - \idfull]}_{\text{sample-count artifact}}
+  + \underbrace{[\idfull - \ml]}_{\text{BN statistics}}
+  + \underbrace{[\ml - \mixed]}_{\text{OOD gradient}}
+  \label{eq:decomp}
+\end{equation}
+
+This design separates three contamination sources: (1) the OOD batch being smaller than the full batch by $(1-\alpha)B$ samples, (2) BatchNorm computing joint statistics over ID and OOD images, and (3) OOD samples contributing to the entropy gradient.
+The sample-count artifact is measured as $+3$--$12\%$ of the total gap, confirming that batch-size confounds are small and the protocol is fair.

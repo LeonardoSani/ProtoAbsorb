@@ -128,9 +128,9 @@ def forest_plot(results: dict, alphas: list[float], out_path: Path,
     ax.set_title(title)
     handles, labels = ax.get_legend_handles_labels()
     if handles:
-        ax.legend(handles, labels, frameon=False, loc="lower left")
+        ax.legend(handles, labels, frameon=False, loc="upper right")
     fig.tight_layout()
-    fig.savefig(out_path)
+    fig.savefig(out_path, bbox_inches="tight", dpi=150)
     plt.close(fig)
 
 

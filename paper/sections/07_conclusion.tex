@@ -1,0 +1,24 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have introduced a paired contamination protocol that isolates the OOD-detection cost of entropy-minimizing TTA in mixed test streams.
+The contamination gap---the OOD-detection improvement forfeited by using a mixed batch rather than a clean ID oracle---is significant in 27/32 experimental cells across 4 OOD datasets, 2 TTA methods, and 3 OOD detectors, and replicates at ImageNet scale.
+A four-condition mechanistic decomposition demonstrates that OOD gradient contamination, not BatchNorm statistics, is the dominant mechanism in all tested conditions.
+A cross-method audit reveals that standard closed-set TTA rankings actively invert open-world safety rankings: at $\alpha{=}0.9$ averaged across OOD datasets and corruptions, ETA ranks first by closed-set ID-accuracy gain but joint-last by mixed-stream AUROC, and the no-adaptation baseline attains the highest mixed-stream OOD detection among all evaluated methods.
+
+\paragraph{Reporting standard.}
+We recommend that TTA papers targeting open-world deployment report the paired contamination gap and the Pareto plot of ID accuracy vs.\ OOD AUROC alongside standard closed-set metrics.
+
+\paragraph{Limitations.}
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item Experiments cover CIFAR-10 and ImageNet; broader evaluation (DomainNet, OfficeHome) is left to future work.
+  \item The \idonly{} oracle is unrealizable; the paired gap measures contamination cost, not a deployable performance bound.
+  \item Fix B (gradient-filtering mitigation using a learned OOD gate) was not evaluated; the $\ml$ condition in Section~\ref{sec:mechanism} provides a theoretical upper bound for what a complete fix could achieve.
+  \item $\alpha$ values studied (0.25--0.9) may not cover extremely sparse OOD contamination ($\alpha > 0.95$), where the gradient contamination signal is smaller.
+  \item UniEnt+'s fixed entropy threshold mislabels uncertain ID samples under heavy corruption; adaptive thresholding may reduce this side effect.
+\end{itemize}
+
+\paragraph{Future work.}
+Designing a gradient-filtering method that achieves the $\ml$ ideal---excluding OOD gradient contributions while preserving BN exposure to the full batch---remains an open problem.
+The $\ml$ condition demonstrates that such a method, if realizable, would outperform the oracle by a substantial margin, making it a high-value target.
+Extending the audit to diffusion-based TTA methods and to vision-language models in zero-shot open-world settings are natural next steps.

@@ -1,0 +1,71 @@
+\section{Additional Results}
+\label{sec:appendix_results}
+
+\subsection{Forest Plots: DTD and Places365}
+
+Additional forest plots for DTD and Places365 OOD datasets are provided in Figure~\ref{fig:forest_dtd_places} (see \texttt{results/figures/step2\_dtd\_forest.png} and \texttt{results/step2\_places365/}).
+The pattern is consistent with SVHN: \idonly{} outperforms \mixed{} at all $\alpha \ge 0.5$; Places365 shows smaller absolute gaps due to near-chance pre-TTA AUROC.
+
+\subsection{BN vs.\ InstanceNorm Ablation}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\linewidth]{figures/fig_ablation_bn.png}
+  \caption{%
+    BatchNorm vs.\ InstanceNorm ablation (SVHN, $\alpha=0.5$, gaussian noise).
+    BN-TENT shows larger absolute gaps (both benefit and cost).
+    IN-TENT shows a smaller absolute gap but similar forfeit fraction ($1.36$ vs.\ $1.67$).
+    The reduction reflects weaker adaptation overall, not BN-statistics-specific contamination.
+  }
+  \label{fig:ablation_bn}
+\end{figure}
+
+\subsection{ViT-S/16 Backbone}
+
+ViT-S/16 (LayerNorm, 98.80\% CIFAR-10 accuracy) shows a paired gap of $+0.013$ ($p = 2.6 \times 10^{-10}$, SVHN, $\alpha=0.5$, gaussian noise).
+This exactly matches the ResNet-18/InstanceNorm residual of $+0.014$, providing convergent evidence that gradient contamination persists without shared batch statistics.
+
+\subsection{Step 9 Full Results}
+
+Full 32-cell Step 9 results are in \texttt{results/step9/ranking\_audit\_results.json}.
+Results at $\alpha = 0.5$ show the same ranking reversal pattern as $\alpha = 0.9$, with smaller absolute gaps consistent with the scatter analysis (Section~\ref{sec:characterization}).
+
+\subsection{Detector Breadth (Step 3)}
+
+Additional results for Energy and Mahalanobis detectors across DTD and Places365 confirm that the paired gap is not specific to MSP.
+For DTD $\alpha = 0.9$: Energy gap $= +0.225$ ($p = 1.7 \times 10^{-12}$); Mahalanobis gap $= +0.031$ ($p = 2.9 \times 10^{-4}$).
+
+\section{Implementation Details}
+\label{sec:appendix_impl}
+
+\paragraph{TENT and ETA.}
+Both methods adapt only the BatchNorm affine parameters ($\gamma, \beta$) using the Adam optimizer with $\text{lr} = 10^{-3}$.
+BatchNorm layers are set to training mode with \texttt{track\_running\_stats=False}, so batch statistics are computed fresh from each test batch.
+$T = 10$ gradient steps per batch.
+
+\paragraph{UniEnt+.}
+Implementation follows \citet{unient}: entropy split at $\tau = \log(C)/2$ where $C = 10$ for CIFAR-10.
+Pseudo-ID samples ($H(p) < \tau$) receive entropy minimization loss; pseudo-OOD samples ($H(p) \ge \tau$) receive entropy maximization loss.
+Same BatchNorm setup as TENT.
+
+\paragraph{InstanceNorm ablation.}
+BatchNorm layers are replaced by InstanceNorm using a deep-copy of the pretrained checkpoint, with affine parameters ($\gamma, \beta$) initialized from the original BN values.
+
+\paragraph{ViT-S/16.}
+The model is \texttt{vit\_small\_patch16\_224} from timm \citep{timm}, pretrained on ImageNet, fine-tuned 30 epochs on CIFAR-10 at $224 \times 224$.
+LayerNorm affine parameters ($50$ pairs, $19.2k$ scalars) are adapted during TTA.
+
+\paragraph{ImageNet-Scale.}
+ResNet-50 torchvision pretrained weights ($\sim 76\%$ clean top-1).
+NINCO \citep{ninco}: 5,878 images from 64 species not present in ImageNet-1K.
+ImageNet-C \citep{imagenetc}: severity 5.
+Batch size $64$, $T=20$ steps.
+
+\paragraph{Statistical protocol.}
+All confidence intervals use 1000-iteration bootstrap resampling (seed fixed per cell).
+Paired $t$-test compares per-batch $\DeltaA$ vectors between conditions.
+All $p$-values are two-sided.
+
+\paragraph{Reproducibility.}
+Code and checkpoints will be released at \texttt{[anonymous URL]}.
+All experiments use \texttt{uv run python -m experiments.<script>}.

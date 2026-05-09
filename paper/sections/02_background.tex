@@ -1,0 +1,35 @@
+\section{Background and Related Work}
+\label{sec:background}
+
+\paragraph{Entropy-minimizing TTA.}
+Test-time adaptation updates model parameters using only the unlabeled test batch.
+TENT \citep{tent} minimizes the mean per-sample softmax entropy over BatchNorm affine parameters.
+ETA \citep{eta} adds an entropy threshold that filters high-entropy samples before computing the gradient, and a Fisher-regularized weight update.
+SAR \citep{sar} and CoTTA \citep{cotta} extend these ideas to continual and non-stationary streams.
+A common property of all entropy-minimizing methods is that they are \emph{class-closing}: the gradient sharpens each prediction toward its current argmax class, regardless of whether that class is semantically meaningful for the input.
+This is well-suited to corrupted ID images, where the correct class is likely already the argmax, but it is adversarial to OOD detection, where the model's uncertainty should be preserved.
+
+\paragraph{Score-based OOD detection.}
+The maximum softmax probability (MSP) \citep{msp}, energy score \citep{energy}, and Mahalanobis distance \citep{mahal} all rely on the model expressing lower confidence or higher uncertainty on OOD inputs than on ID inputs.
+MSP is low when the prediction is uncertain; energy is high when logits are spread; Mahalanobis distance is large when features are far from training-class prototypes.
+All three are adversarially affected by entropy minimization: sharpening OOD predictions raises MSP, concentrates logits, and contracts features toward prototypes.
+
+\paragraph{Open-world and open-set TTA.}
+Several recent works address OOD contamination in TTA.
+OWTTT \citep{owttt} extends TTA to open-world streams by detecting and clustering novel categories, framing contamination as a problem for a richer adaptation algorithm.
+UniEnt and UniEnt+ \citep{unient} propose a unified entropy objective that applies entropy minimization to pseudo-ID samples and entropy maximization to pseudo-OOD samples, addressing the ID/OOD split at the loss level.
+Concurrent with our work, ROSETTA \citep{rosetta} studies the same open-set TTA setting and proposes a mitigation method for the ID/OOD tradeoff.
+These works confirm that the conflict exists and propose methods to reduce it.
+
+Our work is complementary rather than algorithmic: we do not claim to discover this conflict or to solve it with a new adaptation rule.
+Instead, we introduce a method-agnostic \emph{paired counterfactual protocol} and a four-condition mechanistic decomposition that quantify residual contamination cost for \emph{any} OSTTA method---including future ones.
+This diagnostic asks a different question from absolute mixed-stream AUROC or ID accuracy: given a fixed test stream, how much OOD-detection improvement was achievable but forfeited because OOD samples entered the adaptation pathway?
+We evaluate UniEnt+ under our protocol and show that the paired gap persists, partially reduced but not eliminated, demonstrating that the closed-set evaluation norm under-reports residual OOD-safety failures even for methods explicitly designed for open-world streams.
+Evaluating ROSETTA under this protocol is an important next step; we do not include it here because the work appeared concurrently and no official implementation was available at our submission cutoff.
+The distinction from ROSETTA and UniEnt is not ``we discovered the conflict'' but ``we provide the tool that measures what remains unsolved.''
+ROSETTA strengthens the motivation for our protocol rather than subsuming it: once multiple OSTTA methods exist, the field needs a common diagnostic of residual contamination cost, not only absolute performance tables.
+
+\paragraph{Evaluation in TTA.}
+Standard TTA evaluation measures top-1 accuracy on corrupted ID images, typically from CIFAR-10-C \citep{imagenetc} or ImageNet-C \citep{imagenetc}.
+Several papers note that TTA can fail silently---degrading performance on some samples while improving on others \citep{cotta,sar}---but these analyses remain within the closed-set ID-accuracy framework.
+We extend this critique to a second axis: OOD safety.

@@ -1,0 +1,59 @@
+% ACCV 2026 format.
+% Requires: llncs.cls (texlive-publishers or https://www.springer.com/gp/computer-science/lncs/conference-proceedings-guidelines)
+%           accv2026.sty (from https://accv2026.org/submission when released)
+\documentclass[runningheads]{llncs}
+
+\usepackage[numbers]{natbib}
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{enumitem}
+% LLNCS-native theorem definition (no amsthm needed)
+\spnewtheorem{observation}{Observation}{\bfseries}{\itshape}
+
+\title{Open-World TTA Safety: Entropy Minimization Forfeits OOD Detection Gain and Inverts Method Rankings}
+\titlerunning{Open-World TTA Safety}
+
+\author{Anonymous}
+\authorrunning{Anonymous}
+\institute{Anonymous Institution}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We show that standard closed-set TTA rankings actively invert open-world safety rankings.
+In our heavy-contamination audit ($\alpha{=}0.9$, averaged across OOD datasets and corruptions), ETA ranks first by ID-accuracy gain but joint-last by mixed-stream AUROC, and the no-adaptation baseline attains higher open-world OOD detection than any entropy-minimizing TTA method tested.
+This reversal arises because entropy-minimizing TTA sharpens predictions on \emph{all} inputs---including OOD inputs whose uncertainty should be preserved---creating an objective-level conflict with OOD detection.
+We introduce a \emph{paired contamination protocol} that isolates this conflict experimentally, pairing an ID-only oracle against realistic mixed-batch adaptation on identical test streams.
+Across 4 OOD datasets, 2 TTA methods, 4 ID fractions, and 3 OOD detectors, the oracle consistently outperforms the realistic baseline (27/32 cells, $p < 0.05$), with contamination forfeiting up to 289\% of the achievable OOD-detection benefit.
+A four-condition mechanistic decomposition identifies \emph{OOD gradient contamination} as the dominant driver: including OOD samples in the entropy loss collapses the ID/OOD score gap, while BatchNorm exposure to OOD inputs (without the gradient) is actively beneficial.
+We replicate these findings at ImageNet scale (8/8 cells, ResNet-50, NINCO) and recommend paired-gap reporting as a required evaluation column for TTA papers targeting open-world deployment.
+\keywords{test-time adaptation \and out-of-distribution detection \and open-world evaluation \and entropy minimization \and paired protocol}
+\end{abstract}
+
+\input{sections/01_introduction}
+\input{sections/02_background}
+\input{sections/03_protocol}
+\input{sections/04_characterization}
+\input{sections/05_mechanism}
+\input{sections/06_audit}
+\input{sections/07_conclusion}
+
+\bibliographystyle{splncs04}
+\bibliography{references}
+
+\appendix
+\input{sections/appendix}
+
+\end{document}

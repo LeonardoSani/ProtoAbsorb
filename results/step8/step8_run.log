@@ -1,0 +1,26 @@
+[10:06:53] INFO step8: Device: cuda
+[10:06:53] INFO step8: == Cell 1/4: OOD=svhn  alpha=0.5 ==
+[10:07:16] INFO step8:   id_subbatch             ΔA=+0.0775 [+0.0628, +0.0918]
+[10:07:16] INFO step8:   id_fullmatch            ΔA=+0.0443 [+0.0333, +0.0555]
+[10:07:16] INFO step8:   mixed_maskedloss        ΔA=+0.3450 [+0.3178, +0.3725]
+[10:07:16] INFO step8:   mixed                   ΔA=-0.0523 [-0.0810, -0.0228]
+[10:07:16] INFO step8:   Decomposition  total=+0.1298  sample=+25.5%  BN=-231.6%  grad=+306.1%
+[10:07:16] INFO step8: == Cell 2/4: OOD=svhn  alpha=0.9 ==
+[10:07:40] INFO step8:   id_subbatch             ΔA=+0.1864 [+0.1600, +0.2137]
+[10:07:40] INFO step8:   id_fullmatch            ΔA=+0.1793 [+0.1518, +0.2088]
+[10:07:40] INFO step8:   mixed_maskedloss        ΔA=+0.2678 [+0.2366, +0.2996]
+[10:07:40] INFO step8:   mixed                   ΔA=-0.0353 [-0.0896, +0.0213]
+[10:07:40] INFO step8:   Decomposition  total=+0.2217  sample=+3.2%  BN=-39.9%  grad=+136.7%
+[10:07:40] INFO step8: == Cell 3/4: OOD=places365  alpha=0.5 ==
+[10:08:02] INFO step8:   id_subbatch             ΔA=+0.0721 [+0.0558, +0.0896]
+[10:08:02] INFO step8:   id_fullmatch            ΔA=+0.0455 [+0.0326, +0.0600]
+[10:08:02] INFO step8:   mixed_maskedloss        ΔA=+0.2845 [+0.2603, +0.3085]
+[10:08:02] INFO step8:   mixed                   ΔA=+0.0124 [-0.0084, +0.0328]
+[10:08:02] INFO step8:   Decomposition  total=+0.0597  sample=+44.5%  BN=-400.2%  grad=+455.7%
+[10:08:02] INFO step8: == Cell 4/4: OOD=places365  alpha=0.9 ==
+[10:08:25] INFO step8:   id_subbatch             ΔA=+0.2115 [+0.1829, +0.2420]
+[10:08:25] INFO step8:   id_fullmatch            ΔA=+0.2008 [+0.1737, +0.2286]
+[10:08:25] INFO step8:   mixed_maskedloss        ΔA=+0.2522 [+0.2190, +0.2871]
+[10:08:25] INFO step8:   mixed                   ΔA=+0.0207 [-0.0269, +0.0670]
+[10:08:25] INFO step8:   Decomposition  total=+0.1908  sample=+5.6%  BN=-27.0%  grad=+121.3%
+[10:08:25] INFO step8: Done. Results → results/step8

@@ -48,6 +48,7 @@ from experiments._common import (
     TentConfig, TentVariant,
     collect_bn_params, configure_tent_model, make_optimizer,
 )
+from proto_absorb.unient import configure_unient_model
 from proto_absorb.data import ImageNetC, get_ood_dataset_224
 from proto_absorb.models import build_resnet50
 
@@ -76,9 +77,13 @@ def make_resnet50_factory(
 
     def factory():
         model = copy.deepcopy(_base).to(device)
-        configure_tent_model(model)
+        # configure_unient_model is identical to configure_tent_model (BN affine only)
+        if tta_method == "unient_plus":
+            configure_unient_model(model)
+        else:
+            configure_tent_model(model)
         params, _ = collect_bn_params(model)
-        if tta_method == "eata":
+        if tta_method in {"eata", "eta"}:
             opt = torch.optim.SGD(params, lr=lr, momentum=0.9)
         else:
             cfg = TentConfig(lr=lr)
@@ -203,6 +208,9 @@ def cli() -> None:
                         default=["fog", "jpeg_compression"])
     parser.add_argument("--oods", nargs="+", default=["ninco"])
     parser.add_argument("--methods", nargs="+", default=["tent", "eata"])
+    parser.add_argument("--step9-anchor", action="store_true",
+                        help="Step 9.5: append UniEnt+ anchor cells "
+                             "(fog+jpeg × NINCO × α=0.9) to existing results JSON.")
     parser.add_argument("--alphas", type=float, nargs="+", default=[0.9, 0.5])
     parser.add_argument("--severity", type=int, default=5)
     parser.add_argument("--steps", type=int, default=DEFAULT_T)
@@ -289,6 +297,48 @@ def cli() -> None:
                             f"[{s['delta_auroc_lo']:+.4f}, {s['delta_auroc_hi']:+.4f}]"
                             + (f"  p={p:.3g}" if cond == "mixed" else "")
                         )
+
+    # --- Step 9.5: UniEnt+ anchor cells ---
+    if args.step9_anchor:
+        anchor_corruptions = ["fog", "jpeg_compression"]
+        anchor_ood         = "ninco"
+        anchor_alpha       = 0.9
+        log.info("\n[Step 9.5] Adding UniEnt+ anchor cells (fog+jpeg × NINCO × α=0.9)")
+        for corr in anchor_corruptions:
+            key = f"{corr}|{anchor_ood}|unient_plus|{anchor_alpha}"
+            if key in all_results:
+                log.info(f"  {key}: already present, skipping.")
+                continue
+            log.info(f"  Running {key} ...")
+            anchor_seed = (
+                args.seed * 7919
+                + abs(hash(corr))        % 997
+                + abs(hash(anchor_ood))  % 997
+                + abs(hash("unient_plus")) % 997
+                + int(anchor_alpha * 1000)
+            )
+            cell = run_cell(
+                data_root=args.data_root,
+                corruption=corr,
+                alpha=anchor_alpha,
+                ood_name=anchor_ood,
+                n_batches=args.batches,
+                n_steps=args.steps,
+                batch_size=args.batch_size,
+                tta_method="unient_plus",
+                master_seed=anchor_seed,
+                lr=args.lr,
+                device=device,
+            )
+            all_results[key] = cell
+            p = cell["paired_test_mixed_vs_id_only"]["p"]
+            for cond in CONDITIONS:
+                s = cell[cond]
+                log.info(
+                    f"    {cond:8s}  AUROC(T)={s['auroc_T_mean']:.4f}  "
+                    f"Δ-AUROC={s['delta_auroc_mean']:+.4f}"
+                    + (f"  p={p:.3g}" if cond == "mixed" else "")
+                )
 
     print_summary_table(all_results, log)
 

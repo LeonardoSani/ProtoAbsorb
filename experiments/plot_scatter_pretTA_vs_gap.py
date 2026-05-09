@@ -22,10 +22,10 @@ import numpy as np
 
 OOD_CONFIGS = {
     "svhn": {
-        "s1": "results/step1/sanity.json",
+        "s1": "results/step1_svhn/sanity.json",
         "s1_t0_key": "cifar10c_vs_svhn_auroc_t0",
         "s1_clean_key": "clean_vs_svhn_auroc",
-        "s2": "results/step2/step2_results.json",
+        "s2": "results/step2_svhn/step2_results.json",
         "color": "#2166ac",
         "marker": "o",
         "label": "SVHN",

@@ -27,7 +27,8 @@ from proto_absorb.data import (
     get_ood_dataset,
 )
 from proto_absorb.models import build_resnet18, load_checkpoint
-from proto_absorb.eata import EataConfig, EataState, eata_step
+from proto_absorb.eata import EataConfig, EataState, eata_step  # aliases for EtaConfig/EtaState/eta_step
+from proto_absorb.unient import unient_step
 from proto_absorb.scorers import energy_score, mahalanobis_score, msp_score
 from proto_absorb.tent import (
     TentConfig,
@@ -238,7 +239,7 @@ def run_condition_on_batch(
 
     eata_state: Optional[EataState] = None
     eata_cfg: Optional[EataConfig] = None
-    if tta_method == "eata":
+    if tta_method in {"eata", "eta"}:
         eata_state = (eata_state_factory or EataState)()
         eata_cfg = EataConfig(lr=lr) if eata_e0 is None else EataConfig(lr=lr, e0=eata_e0)
         # rebuild optimizer to honor EataConfig.lr (same as TentConfig.lr here)
@@ -272,13 +273,17 @@ def run_condition_on_batch(
                 id_mask = ~batch.is_ood
                 if id_mask.any():
                     sub_imgs = batch.images[id_mask]
-                    if tta_method == "eata":
+                    if tta_method in {"eata", "eta"}:
                         eata_step(model, opt, sub_imgs, eata_state, eata_cfg)  # type: ignore[arg-type]
+                    elif tta_method == "unient_plus":
+                        unient_step(model, opt, sub_imgs)
                     else:
                         tent_step(model, opt, sub_imgs, cfg, centroids=centroids)
             elif condition == "mixed":
-                if tta_method == "eata":
+                if tta_method in {"eata", "eta"}:
                     eata_step(model, opt, batch.images, eata_state, eata_cfg)  # type: ignore[arg-type]
+                elif tta_method == "unient_plus":
+                    unient_step(model, opt, batch.images)
                 else:
                     tent_step(model, opt, batch.images, cfg, centroids=centroids)
             else:
@@ -336,9 +341,10 @@ __all__ = [
     "draw_paired_batches", "run_condition_on_batch",
     "bootstrap_ci", "paired_t_test",
     # re-exports
-    "CIFAR10_C_CORRUPTIONS", "TentConfig", "TentVariant",
+    "CIFAR10_C_CORRUPTIONS", "MixedBatch", "MixedBatchSampler", "TentConfig", "TentVariant",
     "tent_step", "snapshot_logits_and_features",
     "EataConfig", "EataState", "eata_step",
+    "unient_step",
     "CentroidBank", "nearest_centroid_distances", "update_centroids_dynamic",
     "ensure_dir", "get_device", "get_logger", "set_seed",
     "msp_score", "energy_score", "mahalanobis_score",

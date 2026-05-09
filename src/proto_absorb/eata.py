@@ -1,6 +1,7 @@
-"""EATA: Efficient Anti-forgetting Test-time Adaptation (Niu et al., 2022).
+"""ETA: Efficient Test-time Adaptation (EATA without Fisher regularizer).
 
-Faithful but minimal implementation that captures the two core ideas:
+Faithful but minimal implementation of the two core ideas from
+Niu et al. (EATA, 2022):
 
 1. **Reliable sample selection.** Only samples whose entropy is below a
    threshold ``E_0`` contribute to the update. This drops uncertain (often
@@ -17,7 +18,7 @@ multiplied by the redundancy mask. The loss is a weighted mean entropy.
 We omit the Fisher anti-forgetting regularizer (it requires an extra forward
 on a held-out source set, which is out of scope for the contamination
 analysis here). EATA without Fisher is itself a published-ish baseline often
-referred to as "ETA".
+referred to as "ETA" — that is what this module implements.
 """
 
 from __future__ import annotations
@@ -36,15 +37,15 @@ def softmax_entropy(logits: torch.Tensor) -> torch.Tensor:
 
 
 @dataclass
-class EataState:
-    """Mutable state carried across batches by an EATA adapter."""
+class EtaState:
+    """Mutable state carried across batches by an ETA adapter."""
 
     moving_softmax: torch.Tensor | None = None  # running average of softmax
     momentum: float = 0.9
 
 
 @dataclass
-class EataConfig:
+class EtaConfig:
     lr: float = 1e-3
     momentum: float = 0.9
     e0: float = 0.4 * torch.log(torch.tensor(10.0)).item()
@@ -53,10 +54,10 @@ class EataConfig:
     """Redundancy threshold; drop sample if cos(p_i, ema_p) > 1 - epsilon."""
 
 
-def eata_loss_and_mask(
+def eta_loss_and_mask(
     logits: torch.Tensor,
-    state: EataState,
-    cfg: EataConfig,
+    state: EtaState,
+    cfg: EtaConfig,
 ) -> tuple[torch.Tensor, torch.Tensor]:
     """Return (scalar loss, keep_mask). Loss is mean weighted entropy on
     reliable + non-redundant samples; keep_mask is the boolean mask used.
@@ -76,7 +77,7 @@ def eata_loss_and_mask(
     if keep.sum() == 0:
         return logits.sum() * 0.0, keep  # zero loss that still tracks the graph
 
-    # EATA reweighting: smaller entropy ⇒ larger weight.
+    # ETA reweighting: smaller entropy ⇒ larger weight.
     w = torch.exp(cfg.e0 - H[keep]).detach()
     H_keep = H[keep]
     loss = (w * H_keep).sum() / w.sum().clamp_min(1e-8)
@@ -96,19 +97,28 @@ def eata_loss_and_mask(
     return loss, keep
 
 
-def eata_step(
+def eta_step(
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
     images: torch.Tensor,
-    state: EataState,
-    cfg: EataConfig,
+    state: EtaState,
+    cfg: EtaConfig,
 ) -> dict[str, float]:
-    """Single EATA adaptation step on ``images``."""
+    """Single ETA adaptation step on ``images``."""
     optimizer.zero_grad(set_to_none=True)
     logits = model(images)
-    loss, keep = eata_loss_and_mask(logits, state, cfg)
+    loss, keep = eta_loss_and_mask(logits, state, cfg)
     if keep.sum() == 0:
         return {"loss": 0.0, "kept": 0}
     loss.backward()
     optimizer.step()
     return {"loss": float(loss.detach().cpu()), "kept": int(keep.sum().cpu())}
+
+
+# ---------------------------------------------------------------------------
+# Backward-compat aliases (callers using old EATA names still work)
+# ---------------------------------------------------------------------------
+EataState = EtaState
+EataConfig = EtaConfig
+eata_loss_and_mask = eta_loss_and_mask
+eata_step = eta_step

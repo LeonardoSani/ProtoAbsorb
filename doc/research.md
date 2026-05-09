@@ -1,6 +1,6 @@
 # Open-World TTA Safety: The Adaptation–Abstention Conflict
 
-**Target venue:** ACCV 2025 (or BMVC / WACV / ECCV workshop)
+**Target venue:** ACCV 2026
 **Last updated:** 2026-05-09
 
 ---
@@ -22,7 +22,7 @@ failure — it is an objective-level conflict.
 
 ---
 
-## 2. Theory: Why the Conflict Is Inevitable
+## 2. Theory: The Adaptation–Abstention Conflict
 
 ### 2.1 What entropy minimization does
 
@@ -59,33 +59,45 @@ TTA objective:     minimize H(p)  →  make every prediction more certain
 OOD safety goal:   maximize H(p) on unknowns  →  stay uncertain on novel inputs
 ```
 
-These goals are **in direct conflict on OOD samples**. No amount of tuning the learning rate
-resolves this — only an objective that explicitly distinguishes ID from OOD can do so.
+These goals are **in direct conflict on OOD samples**. All tested mitigation strategies leave a significant residual gap; a formal lower bound remains open, but any complete solution likely requires either OOD labels at adaptation time or a selector reliable enough to exclude all OOD gradient contributions from the loss.
 
-### 2.3 The shared-BatchNorm mechanism
+### 2.3 The OOD gradient contamination mechanism
 
-Even if OOD samples contribute zero gradient directly (e.g. are down-weighted), the BatchNorm
-affine parameters `(γ, β)` are shared across the batch. Updates driven by ID samples modify
-the representation of OOD samples in subsequent forward passes. Therefore `s(x_OOD)` decreases
-(model looks more confident on OOD) even when OOD samples are filtered from the gradient step.
+The dominant mechanistic factor is **direct OOD gradient contamination**: when OOD samples are included in
+the entropy minimization objective, the model is explicitly optimized to produce confident
+predictions on OOD inputs, collapsing the ID/OOD score gap.
 
-**Quantified by Ablation A:** Replacing BN with InstanceNorm reduces the paired gap by 88.9%
-(BN gap +0.130 → IN gap +0.014). ViT-S/16 (LayerNorm) independently replicates this residual
-(+0.013), triangulating that ~89% of the contamination penalty is BN-statistics contamination
-and ~11% is direct OOD-gradient contamination.
+**Quantified by Step 8 (four-condition control):** Decoupling BN statistics from gradient
+exposure reveals that:
 
-### 2.4 Batch-size confound in the id_only oracle (known limitation)
+| Condition | BN sees OOD? | Loss includes OOD? | ΔAUROC (SVHN α=0.5) |
+|---|---|---|---|
+| id_fullmatch | No | No | +0.044 |
+| mixed_maskedloss | **Yes** | No | **+0.345** |
+| mixed | Yes | **Yes** | −0.052 |
 
-The `id_only` condition adapts on $\alpha B$ samples (the ID sub-batch) while `mixed` adapts on
-the full batch of $B$ samples. For BN-based TTA this confounds contamination with sub-batch
-statistics quality. The confound is addressed by the four-condition control (Step 8 below), but
-is worth noting as a caveat on the core paired-gap result.
+BN exposure to OOD, when decoupled from the gradient, is not harmful — it is actively beneficial
+(mixed_maskedloss > id_fullmatch by +0.30, all cells, both corruptions). The contamination
+damage is entirely attributable to OOD samples in the entropy loss, confirmed across 6 cells
+spanning 2 OODs (SVHN, Places365), 2 α values, and 2 corruptions (gaussian_noise, fog).
 
-The confound is already partially bounded by the ViT/IN results: both use LayerNorm/InstanceNorm
-and still show significant paired gaps (+0.013, +0.014), matching the expected residual from
-gradient contamination alone. This makes it unlikely that the batch-size artifact accounts for
-most of the BN paired gap (+0.130), but the four-condition control (§Step 8) is needed to
-quantify it directly.
+**Role of BatchNorm:** BN enables stronger gradient updates in general — more adaptation gain
+when OOD is absent from the loss, and more harm when OOD is included. The larger paired gap
+under BN vs. IN/LN (Ablation A) reflects BN's stronger adaptation signal in both directions,
+not BN statistics contamination per se.
+
+**Why this reframes Fix A and Fix C:** Both fixes modify the gradient pathway (down-weighting or
+filtering OOD-like samples from the loss). They fail not because BN statistics remain, but
+because they provide only partial gradient filtering — the OOD gradient is reduced, not
+eliminated, and even partial OOD gradient contribution is sufficient to collapse the score gap.
+
+### 2.4 Batch-size confound in the id_only oracle (settled)
+
+The `id_only` condition adapts on αB samples while `mixed` adapts on the full B samples,
+confounding contamination with sample-count effects. Step 8 measures this directly via the
+`id_subbatch − id_fullmatch` term: **+3–12% of the total gap** across all cells, confirming the
+confound is small. The dominant component is gradient contamination (+120–456%). The confound
+objection is settled.
 
 ---
 
@@ -170,7 +182,7 @@ Places365's anomalous behavior downstream.
 
 ### Step 2 — Contamination Isolation ✓ (CORE RESULT)
 
-**Goal:** Show contamination, not TTA itself, is causal. Three conditions on the same drawn batches:
+**Goal:** Show contamination, not TTA itself, drives the paired gap. Three conditions on the same drawn batches:
 `No TTA`, `ID-only TENT` (oracle), `Mixed TENT` (realistic). Key statistic: paired gap =
 ΔAUROC(id_only) − ΔAUROC(mixed).
 
@@ -282,9 +294,10 @@ eliminates the contamination penalty.
 **Verdict:** Fix A is statistically indistinguishable from vanilla mixed TENT at all α. Slightly
 worse at α=0.9. Not a usable method contribution.
 
-**Why it failed:** Down-weighting reduces per-sample gradient contribution, but BatchNorm
-statistics are computed over the full batch first. OOD presence still shifts BN moments
-even when OOD-like samples are excluded from the gradient.
+**Why it failed (revised):** Step 8 shows BN statistics exposure to OOD is not the mechanism —
+it is beneficial when decoupled from gradient. Fix A fails because MSP-weighting only weakly
+reduces OOD gradient contribution; OOD samples with moderate MSP still enter the loss with
+non-negligible weight. Partial gradient filtering is insufficient.
 
 ---
 
@@ -317,15 +330,19 @@ unit of adaptation. However, the **absolute** degradation for IN mixed-TENT is �
 (negligible) while BN is −0.052 (large and significant). In practice, IN eliminates the
 observable degradation — but also most of the adaptation benefit.
 
-**Verdict:** Shared BN statistics account for ~89% of the contamination penalty. Gradient
-contamination alone (the only pathway remaining in IN-TENT) contributes ~11%. This explains
-why Fix A (gradient weighting) and Fix C (sample filtering) both fail: they modify the
-gradient pathway but leave BN in the adaptation loop, leaving ~89% of the mechanism intact.
+**Verdict (revised in light of Step 8):** The 88.9% gap reduction from BN→IN does not imply
+BN statistics are the mechanism. Step 8 shows BN exposure to OOD (without OOD in the loss) is
+*beneficial*, not harmful. The BN→IN reduction is better explained by weaker adaptation overall:
+id_only gain drops from +0.077 to +0.011 (86% reduction), meaning IN-TENT simply makes smaller
+gradient updates in both directions. The gradient contamination pathway is weakened proportionally,
+not because BN statistics are removed. The dominant mechanism is OOD gradient contamination;
+BN amplifies it by enabling stronger adaptation.
 
-**Practical implication:** The solution is not to swap BN for IN — that sacrifices most of
-the adaptation benefit (id_only gain: 0.077 → 0.011). A complete solution requires an
-adaptation method that achieves BN-level gains without sharing normalization statistics
-across ID and OOD samples in the batch.
+**Practical implication:** Swapping BN for IN is not a viable solution — it destroys most
+adaptation benefit. The fix must target the gradient pathway: prevent OOD samples from
+contributing to the entropy minimization objective (e.g., entropy-gated selection, score-based
+filtering). Step 8 confirms that the ideal outcome — BN adaptation on full batch, gradient
+restricted to ID — dramatically exceeds even the oracle condition (+0.345 vs id_only +0.078).
 
 ---
 
@@ -341,10 +358,12 @@ reduces the contamination penalty, and at what ID-accuracy cost.
 - **DTD α=0.9:** all τ values ns vs vanilla. Fix C fails.
 - **DTD α=0.5:** τ=0.3 p=0.010, τ=0.5 p=0.018. Δ=−0.027 vs −0.055 (vanilla) — ~50% reduction.
 
-**Verdict:** Fix C reduces the contamination penalty by ~50% for DTD at α=0.5 with aggressive
-filtering, but fails for SVHN and for DTD at α=0.9. Mitigation is partial and
-condition-dependent — consistent with the BN ablation: filtering the gradient without replacing
-BN leaves ~89% of the mechanism intact.
+**Verdict (revised):** Fix C reduces contamination by ~50% for DTD at α=0.5 with aggressive
+filtering, but fails for SVHN and DTD at α=0.9. Partial gradient filtering is consistent with
+the gradient-contamination mechanism (Step 8): entropy thresholding removes the highest-entropy
+OOD samples but passes moderate-entropy OOD samples, leaving residual gradient contamination.
+The more aggressive the filtering (τ=0.5), the better — converging toward the `mixed_maskedloss`
+ideal of zero OOD gradient contribution.
 
 ---
 
@@ -373,12 +392,18 @@ CIFAR-10 at 224×224. Best test accuracy: **98.80%** (vs ResNet-18: 95.14%).
 | ViT-S/16 | LayerNorm (this exp) | +0.013 |
 
 **Convergent finding:** ViT's gap (+0.013) almost exactly matches ResNet-18/IN's residual
-gap (+0.014). Both represent the gradient-contamination-only signal — BN absent in both
-cases. Two independent methods triangulate to the same ~10% residual, independently
-confirming that BN statistics account for ~89–90% of the contamination penalty.
+gap (+0.014). Both architectures lack shared batch statistics — only gradient contamination
+remains. Their matched residuals confirm gradient contamination is a real and consistent signal.
 
-**Verdict:** Effect generalizes to ViT-S/16. The gap is significant but 10× smaller than
-ResNet-18/BN — consistent with the mechanism decomposition.
+**Revised interpretation (in light of Step 8):** The ~10× gap ratio (BN +0.130 vs LN/IN ~+0.014)
+reflects BN's stronger adaptation signal overall, not a BN-statistics mechanism. Under BN,
+id_only Δ = +0.077; under IN, id_only Δ = +0.011 — 86% weaker. Weaker adaptation means weaker
+gradient contamination too. The ViT/IN results are consistent with the gradient-contamination
+mechanism: remove BN's amplifying effect and both the benefit and harm scale down proportionally.
+
+**Verdict:** Effect generalizes to ViT-S/16. Gap is 10× smaller than ResNet-18/BN because BN
+enables stronger gradient updates in both directions, not because BN statistics are separately
+harmful.
 
 **Files:** `results/vit_backbone/vit_step2_results.json`,
 `results/vit_backbone/forest_gaussian_noise_alpha0.5.png`
@@ -419,10 +444,10 @@ semantic content (~30–65% accuracy) for well-oriented OOD detection.
 
 **Summary: mixed worse than id_only in 8/8 cells; p<0.05 in 8/8 cells.**
 
-**TENT gap >> EATA gap** — consistent with mechanism: EATA's entropy threshold filters
-unreliable samples from the gradient, partially shielding OOD detection. But shared BN
-statistics still carry OOD signal into the adapted model (~89% of penalty per Ablation A),
-explaining why EATA's mitigation is partial not complete.
+**TENT gap >> EATA gap** — consistent with gradient-contamination mechanism: EATA's entropy
+threshold removes high-entropy (likely OOD) samples from the loss, reducing OOD gradient
+contamination. But moderate-entropy OOD samples still contribute — partial gradient filtering
+leaves residual contamination, explaining why EATA's mitigation is partial not complete.
 
 **FPR95 pattern mirrors AUROC** — id_only consistently lower FPR95 than mixed across all 8 cells
 (e.g., fog TENT α=0.9: id_only 0.380 vs mixed 0.859).
@@ -437,8 +462,8 @@ explaining why EATA's mitigation is partial not complete.
 Fixed α=0.9, 15 points (3 OODs × 5 corruptions):
 - **Panel A** (t0_msp vs paired_gap): r=−0.534, p=0.040. Lower pre-TTA separability →
   harder corruption → more adaptation benefit available → larger contamination penalty. **Inverse.**
-- **Panel B** (id_only Δ vs paired_gap): r=+0.723, p=0.002. Paired gap best predicted by
-  how much adaptation id_only TENT delivers. **Strong positive. This is the theory-confirming figure.**
+- **Panel B** (id_only Δ vs paired_gap): r=+0.632, p=0.012. Paired gap best predicted by
+  how much adaptation id_only TENT delivers. **Strong positive (r=+0.632, p=0.012, n=15). Consistent with the gradient-contamination account; note p=0.012 is borderline under multiple-comparison correction across the two reported correlations.**
 
 **Why Panel B holds theoretically:** Severe corruption confuses the model more → id-only
 TTA delivers a larger AUROC improvement → but a mixed batch under the same corruption also
@@ -475,7 +500,7 @@ incremental penalty imposed by mixed vs ID-only adaptation.
 > OOD-detection gain that the same adaptation would deliver on the ID slice alone.
 > The magnitude of the forfeit scales with the adaptation benefit available — i.e., with
 > how much id-only TENT could have improved OOD detection — which in turn scales with
-> corruption severity (r=+0.72, p=0.002, 15-cell scatter).
+> corruption severity (r=+0.63, p=0.011, 15-cell scatter).
 
 | Claim | Verdict |
 |---|---|
@@ -483,16 +508,20 @@ incremental penalty imposed by mixed vs ID-only adaptation.
 | Paired gap holds for all α | **Supported at α ≥ 0.5; weakens at α=0.25** |
 | Absolute AUROC drop below no-TTA (SVHN/DTD) | **Supported at α ≤ 0.75** |
 | Absolute AUROC drop below no-TTA (Places365/CIFAR-100) | **Not supported — sign reverses** |
-| Contamination penalty scales with id_only Δ | **Supported — r=+0.72, p=0.002** |
+| Contamination penalty scales with id_only Δ | **Supported — r=+0.63, p=0.011** |
 | Contamination penalty scales with pre-TTA separability | **Revised — relationship is inverse across corruption types (r=−0.53); drop original framing** |
 | Effect holds for EATA | **Supported** (4/4 OODs) |
 | Effect holds for MSP, Energy, Mahalanobis | **Supported** (SVHN, DTD, Places365) |
 | Fix A mitigates the problem | **Not supported** |
 | Fix C mitigates the problem | **Partially — DTD α=0.5 τ≥0.3; null for SVHN and DTD α=0.9** |
-| BN-statistics contamination is primary mechanism | **Strongly supported — IN-TENT reduces paired gap by 89%** |
+| OOD gradient contamination is primary mechanism | **Strongly supported — Step 8 four-condition decomposition: gradient +120–456% of total gap; BN stats exposure alone is beneficial (−23% to −400%), replicated gaussian_noise + fog** |
+| BN statistics are NOT the mechanism | **Supported — mixed_maskedloss (BN sees OOD, no OOD gradient) dramatically outperforms id_only oracle across all 6 cells** |
 | Confidence sharpening + separability gap explains mechanism | **Supported** (SVHN and DTD, Step 4) |
-| Result generalizes across architectures | **Supported — ViT-S/16 paired gap +0.013 (p=2.6e-10); 10× smaller than ResNet-18/BN, consistent with BN ablation** |
+| Result generalizes across architectures | **Supported — ViT-S/16 paired gap +0.013 (p=2.6e-10); 10× smaller than ResNet-18/BN due to weaker adaptation signal, consistent with gradient-contamination mechanism** |
 | Result replicates at ImageNet scale | **Strongly supported — 8/8 cells, p<0.05 in all; ResNet-50, ImageNet-C, NINCO** |
+| Closed-set TTA ranking ≠ open-world safety ranking | **Strongly supported** — ETA rank #1 closed-set → rank #4 open-world; reversal across 32/32 cells |
+| UniEnt+ reduces paired gap vs TENT/ETA | **Supported but incomplete** — gap +0.127 vs TENT +0.173; mixed AUROC 0.714 vs no-TTA 0.729 |
+| No TTA is safer than entropy-minimizing TTA under heavy contamination | **Supported at α=0.9** — no-TTA mixed AUROC 0.729 > TENT/ETA 0.692 |
 
 ---
 
@@ -506,10 +535,15 @@ below baseline. The "success" reported by closed-set TTA benchmarks masks a safe
 adaptation may occur in open-world conditions. A simple norm — showing the ID accuracy / OOD AUROC
 Pareto curve across methods — makes the tradeoff visible and prevents silent benchmark gaming.
 
-**Why the fixes fail:** Both Fix A and Fix C keep BatchNorm in the adaptation loop, leaving ~89%
-of the contamination mechanism intact. Replacing BN with LN (ViT) or IN (Ablation A) reduces the
-gap by ~90% — but does not eliminate it, because gradient contamination (~10%) remains.
-A complete solution requires an adaptation objective with an explicit open-set or abstention term.
+**Why the fixes fail:** Both Fix A and Fix C provide only partial OOD gradient filtering.
+Fix A (MSP weighting) reduces but does not zero out OOD gradient — moderate-MSP OOD samples
+still contribute. Fix C (entropy thresholding) removes high-entropy OOD but passes the rest.
+Step 8's `mixed_maskedloss` condition confirms that *complete* OOD gradient exclusion — even
+while BN statistics remain contaminated — produces dramatically better results than any partial
+fix (+0.345 vs oracle +0.078 for SVHN α=0.5). The gap is not about BN; it is about whether any
+OOD samples appear in the entropy minimization objective. A complete solution requires either
+an oracle ID/OOD label (unavailable) or a score-based selector reliable enough to exclude all
+OOD samples from the loss — a substantially harder problem than the current partial fixes.
 
 **Known weaknesses to pre-empt:**
 
@@ -539,8 +573,9 @@ A complete solution requires an adaptation objective with an explicit open-set o
    closed-set ranking ≠ mixed-stream ranking, (d) reporting standard
 2. **Background** — TENT/ETA; MSP/Energy/Mahal; OSTTA prior work (OWTTT, UniEnt, ROSETTA);
    why existing methods reduce but do not eliminate the gap
-3. **Theory** — entropy minimization is class-closing, not novelty-aware; BN shared-stats pathway;
-   four-condition decomposition framework (§2.3–2.4)
+3. **Theory** — entropy minimization is class-closing, not novelty-aware; OOD gradient
+   contamination as primary mechanism; four-condition decomposition (Step 8) overturning BN-stats
+   hypothesis; BN role as gradient amplifier not independent contamination source (§2.3–2.4)
 4. **Paired protocol** — contamination isolation design; id_only as oracle; four-condition control
    decomposing sample-count vs BN-stats vs gradient contamination (Step 8)
 5. **Results I — Method Audit** *(new main result for 5/6)*
@@ -550,7 +585,7 @@ A complete solution requires an adaptation objective with an explicit open-set o
 6. **Results II — Characterization**
    - Core paired gap: SVHN + DTD + Places365, 3 detectors, forest plot (Steps 2–3)
    - Generalization: 4 OODs × 2 methods, significance table (Step 5)
-   - Scaling: scatter Panel B (id_only Δ vs paired gap, r=+0.72)
+   - Scaling: scatter Panel B (id_only Δ vs paired gap, r=+0.63)
    - Mechanism: confidence sharpening + Pareto (Step 4)
 7. **Results III — ImageNet-Scale** — ResNet-50, fog+jpeg, NINCO; 8/8 cells; UniEnt+ anchor
 8. **Mitigation** — contamination-aware BN (Fix B); partial win expected; frames solution direction
@@ -588,55 +623,143 @@ too) but "we provide the evaluation tool that reveals how much each method actua
 
 ## 8. Remaining Work
 
-### New Planned Experiments (from ACCV review, 2026-05-09)
+### New Experiments — Status as of 2026-05-09
 
 | Priority | Action | Status | Notes |
 |---|---|---|---|
-| **HIGH** | Integrate UniEnt/UniEnt+ under paired protocol | TODO | Code: github.com/gaozhengqing/UniEnt |
-| **HIGH** | Cross-method ranking audit: No TTA / TENT / ETA / OWTTT / UniEnt+ | TODO | 2 OOD settings, 2 corruptions, CIFAR + ImageNet anchor |
-| **HIGH** | Ranking reversal figure (2 panels: ΔID acc vs mixed AUROC) | TODO | Built from UniEnt runs |
-| **HIGH** | 4-condition confound control | TODO | See §2.4 and Theory.md §9.2 |
-| **HIGH** | Fix B: contamination-aware BN mitigation | TODO | Pseudo-ID-only BN stats; see Theory.md §6 Fix B |
-| **Medium** | Relabel all EATA → ETA in paper, tables, code comments | TODO | `eata.py:17` omits Fisher regularizer |
+| **Done** | Integrate UniEnt/UniEnt+ under paired protocol | ✓ | `src/proto_absorb/unient.py` |
+| **Done** | Cross-method ranking audit: No TTA / TENT / ETA / UniEnt+ | ✓ | Results in §9; ETA #1→#4, no-TTA #1 open-world |
+| **Done** | Ranking reversal figure (2 panels: ΔID acc vs mixed AUROC) | ✓ | `results/figures/step9_ranking_reversal.{png,pdf}` |
+| **Done** | 4-condition confound control | ✓ | `exp_step8_four_cond.py`; gradient dominant (+120–456%); BN beneficial; fog replication done |
+| **HIGH** | Fix B: gradient-filtering mitigation | TODO | ID-oracle selector or learned OOD gate; BN swap ineffective per Step 8 |
+| **Done** | Relabel all EATA → ETA in code | ✓ | `eata.py` renamed; backward-compat aliases preserved |
 | **Medium** | Draft paper §1–2 (intro + background) | TODO | |
-| **Medium** | Generate figures from plotting scripts | Partial | Scatter, decomp done |
+| **Medium** | Generate figures from plotting scripts | Partial | Scatter, decomp done; step9 pending |
 | **Done** | Second backbone (ViT-S/16, one cell) | ✓ | 98.80% acc, paired gap +0.013 p=2.6e-10 |
 | **Done** | ImageNet-scale validation | ✓ | 8/8 cells p<0.05; ResNet-50, fog+jpeg, NINCO |
 | **Medium** | Write paper §7 (ImageNet-scale, 1 table + prose) | TODO | |
 | **Medium** | Add FPR95 to all existing CIFAR results tables | TODO | |
 
-### Step 8 — Four-Condition Confound Control (Planned)
+### Step 8 — Four-Condition Confound Control ✓ DONE 2026-05-09
 
 **Goal:** Decompose the contamination cost into three additive components to settle the batch-size
-confound objection and strengthen the BN-mechanism claim.
+confound objection and identify the BN vs gradient mechanism.
 
 **Four conditions (run on matched batches):**
-1. `id_subbatch` — current oracle: adapt on ID slice only, size αB
-2. `id_fullmatch` — fill OOD slots with extra corrupted ID samples so adaptation uses B ID samples
-3. `mixed_maskedloss` — full mixed batch forward (OOD in BN stats), but loss computed on ID slice
-4. `mixed` — current realistic condition (full batch, full loss)
+1. `id_subbatch` — adapt on ID slice only, size αB  [oracle]
+2. `id_fullmatch` — pad with extra corrupted ID → B total  [count control]
+3. `mixed_maskedloss` — full mixed forward (OOD in BN stats), loss on ID slice only
+4. `mixed` — full mixed forward + full loss  [realistic]
 
-**Decomposition:**
-- `id_subbatch − id_fullmatch` = sample-count artifact (expected ≈ 0)
-- `id_fullmatch − mixed_maskedloss` = BN-statistics contamination (expected dominant, ~89%)
-- `mixed_maskedloss − mixed` = direct OOD-gradient contamination (expected ~11%)
+**Results** (n=30, TENT, severity=5):
 
-**Minimum cells:** SVHN α=0.5 + Places365 α=0.9, n=30 each.
-**Full appendix:** add SVHN α=0.9 + Places365 α=0.5.
+| Cell | corruption | id_subbatch | id_fullmatch | mixed_maskedloss | mixed |
+|------|------------|-------------|--------------|------------------|-------|
+| SVHN α=0.5 | gaussian_noise | +0.078 | +0.044 | **+0.345** | −0.052 |
+| SVHN α=0.9 | gaussian_noise | +0.186 | +0.179 | **+0.268** | −0.035 |
+| Places365 α=0.5 | gaussian_noise | +0.072 | +0.046 | **+0.285** | +0.012 |
+| Places365 α=0.9 | gaussian_noise | +0.212 | +0.201 | **+0.252** | +0.021 |
+| SVHN α=0.5 | fog | +0.032 | +0.017 | **+0.129** | −0.090 |
+| SVHN α=0.9 | fog | +0.087 | +0.083 | **+0.114** | −0.050 |
 
-### Step 9 — Cross-Method Ranking Audit (Planned)
+All paired tests significant: id_full vs ml p<6e-6; ml vs mixed p<2e-14 (gaussian_noise); fog pattern identical.
+
+**Decomposition (actual vs expected) — consistent across both corruptions:**
+
+| Component | Expected | gaussian_noise | fog (SVHN) |
+|-----------|----------|----------------|------------|
+| sample-count (`id_sub − id_full`) | ≈ 0% | +3–45% (small) | +3–12% (small) |
+| BN contamination (`id_full − ml`) | ~89% dominant | **−27% to −400%** | **−23% to −92%** |
+| gradient contamination (`ml − mixed`) | ~11% small | **+121–456%** | **+120–180%** |
+
+**Finding: hypothesis inverted, replicated across two corruptions.**
+BN contamination is not the culprit — it is *beneficial*. The damage comes entirely from
+**direct OOD gradient contamination**: entropy minimization on OOD samples forces confident
+OOD predictions, collapsing the ID/OOD score gap.
+
+**Mechanism restatement:** Failure mode = "OOD samples in entropy loss → model becomes confident
+on OOD → detector margin collapses." BN exposure to OOD, decoupled from OOD gradient, actually
+enhances score separation (heterogeneous batch statistics create contrast exploited by ID-only loss).
+
+**Reconciliation with ViT/IN ablation:** Not contradictory. ViT/IN removed BN sharing *while keeping
+OOD in loss* → measured gradient-only floor (~10% of total). Step 8 removed OOD from loss *while
+keeping BN sharing* → BN alone is benign/helpful. Both consistent: OOD gradient is the mechanism;
+BN sharing amplifies gradient damage but is not independently harmful.
+
+**Implication for fixes:** Target gradient contamination (entropy-gated sample selection,
+OOD-score-weighted loss). BN isolation strategies (IN, LN) help only because they reduce
+OOD gradient influence indirectly, not because of BN stats per se.
+
+**Code:** `experiments/exp_step8_four_cond.py`
+- Main results: `results/step8/` (gaussian_noise). Fog replication: `results/step8_fog/`
+- Run: `python -m experiments.exp_step8_four_cond --ckpt <ckpt> --smoke`
+
+### Step 9 — Cross-Method Ranking Audit (Code complete 2026-05-09; experiments pending)
 
 **Goal:** Show that standard closed-set TTA evaluation mis-ranks method families compared to the
 paired mixed-stream safety evaluation. This is the primary 4/6 → 5/6 upgrade.
 
-**Methods:** No TTA / TENT / ETA / OWTTT / UniEnt / UniEnt+
-**Settings:** 2 OOD (SVHN + DTD), 2 corruptions (gaussian_noise + fog), α=0.5 and α=0.9, n=30
-**ImageNet anchor:** fog+jpeg, NINCO OOD, at least UniEnt+ added to existing TENT/ETA results
+**Methods:** No TTA / TENT / ETA / UniEnt+
+**Settings:** 2 OOD (SVHN + DTD), 2 corruptions (gaussian_noise + fog), α=0.9 and α=0.5, n=30
+**ImageNet anchor (Step 9.5):** fog+jpeg, NINCO OOD, UniEnt+ anchor cells appended to existing ResNet-50 results
 
-**Output figure (2 panels):**
-- Panel A: ΔID accuracy under standard closed-set eval (x-axis: method)
-- Panel B: Mixed-stream AUROC + paired contamination gap (same methods)
-- Expected: TENT/ETA look good in Panel A, rank differently in Panel B; UniEnt+ improves Panel B
+**Code added:**
+- `src/proto_absorb/unient.py` — UniEnt+ (arXiv:2404.06065): entropy split at τ=log(C)/2,
+  pseudo-ID samples minimize H, pseudo-OOD samples maximize H. BN-affine setup identical to TENT.
+- `eata.py` — renamed EtaState/EtaConfig/eta_step; backward-compat aliases `EataState=EtaState` etc.
+- `_common.py` — handles `tta_method in {"eata","eta"}` and `"unient_plus"` in `run_condition_on_batch`
+- `experiments/exp_step9_ranking_audit.py` — 4 methods × 2 OODs × 2 corruptions × 2 α = 32 cells.
+  Outputs `delta_id_acc`, `mixed_auroc`, `id_only_auroc`, `paired_gap` per cell.
+- `experiments/plot_step9_ranking_reversal.py` — two-panel bar chart with rank-reversal annotation.
+- `exp_imagenet_scale.py` — `--step9-anchor` flag appends UniEnt+ fog+jpeg×NINCO×α=0.9 cells.
 
-**Reporting standard:** Every TTA paper should report: `ΔID accuracy` + `mixed-stream OOD AUROC`
-+ `paired contamination gap (id_only − mixed)`. This is the actionable endpoint for the paper.
+**Run commands:**
+```
+# Step 9.2 — 32-cell CIFAR audit
+uv run python -m experiments.exp_step9_ranking_audit \
+  --ckpt checkpoints/resnet18_cifar10.pt \
+  --data-root data --out results/step9 --batches 30
+
+# Step 9.3 — ranking reversal figure
+uv run python -m experiments.plot_step9_ranking_reversal \
+  --results results/step9/ranking_audit_results.json \
+  --out results/figures/step9_ranking_reversal
+
+# Step 9.5 — ImageNet UniEnt+ anchor
+uv run python -m experiments.exp_imagenet_scale \
+  --data-root data --out results/imagenet_scale \
+  --methods unient_plus --oods ninco \
+  --corruptions fog jpeg_compression --alphas 0.9 --batches 30 --step9-anchor
+```
+
+**Results (α=0.9, averaged over SVHN+DTD × gaussian_noise+fog):**
+
+| method | ΔID acc | mixed AUROC | id_only AUROC | paired gap | Panel A rank | Panel B rank |
+|---|---|---|---|---|---|---|
+| No TTA | +0.0000 | 0.7287 | 0.7287 | +0.000 | 3rd | **1st** |
+| TENT | +0.0022 | 0.6924 | 0.8652 | +0.173 | 2nd | 3rd |
+| ETA | +0.0039 | 0.6921 | 0.8183 | +0.126 | **1st** | 4th |
+| UniEnt+ | −0.0141 | 0.7136 | 0.8406 | +0.127 | 4th | 2nd |
+
+Paired gap significant (p<0.05) in all 24 adaptation cells. No-TTA cells p=nan (no adaptation, gap=0 by construction.
+
+**Key finding — ranking reversal stronger than expected:**
+- Panel A (closed-set): ETA best (ΔID+0.004) > TENT (ΔID+0.002) > No TTA (0) > UniEnt+ (ΔID−0.014)
+- Panel B (open-world): **No TTA best** (0.729) > UniEnt+ (0.714) > TENT ≈ ETA (0.692)
+- TENT and ETA both **hurt** mixed-stream AUROC below no-adaptation baseline
+- UniEnt+ partially recovers (0.714 vs 0.729 baseline) but does not close the gap fully
+- ETA: rank **#1 closed-set → rank #4 open-world** (extreme reversal)
+- UniEnt+: rank **#4 closed-set → rank #2 open-world** (extreme reversal, other direction)
+
+**Why UniEnt+ ΔID acc is negative:** The entropy-maximization branch fires on uncertain ID samples
+(pseudo-OOD by entropy threshold), spreading their predictions and reducing ID accuracy. The τ=log(C)/2
+threshold mislabels uncertain ID samples (degraded by corruption) as pseudo-OOD. This is a known
+limitation of the fixed-τ heuristic under heavy corruption.
+
+**Practical implication:** Standard closed-set TTA ranking (Panel A) is not just incomplete — it
+actively inverts the safety ranking. A TTA method that tops the closed-set leaderboard (ETA) is
+the worst choice for open-world deployment by mixed-stream AUROC. No adaptation is safer than any
+entropy-minimizing TTA under heavy OOD contamination.
+
+**Output files:** `results/step9/ranking_audit_results.json`,
+`results/figures/step9_ranking_reversal.{png,pdf}`

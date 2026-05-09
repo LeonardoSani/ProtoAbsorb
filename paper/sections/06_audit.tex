@@ -1,0 +1,84 @@
+\section{Cross-Method Safety Audit}
+\label{sec:audit}
+
+\subsection{Setup}
+
+We apply the paired contamination protocol to four method families:
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item \textbf{No TTA}: no adaptation; the model is evaluated as-is.
+  \item \textbf{TENT} \citep{tent}: standard entropy minimization on the full batch.
+  \item \textbf{ETA} \citep{eta}: entropy-filtered entropy minimization (high-entropy samples excluded).
+  \item \textbf{UniEnt+} \citep{unient}: split entropy objective---entropy minimization on pseudo-ID samples, entropy maximization on pseudo-OOD samples, split at $\tau = \log(C)/2$.
+\end{itemize}
+
+Settings: SVHN and DTD OOD, gaussian noise and fog corruption, $\alpha = 0.9$, $n = 30$ batches, $T = 10$ steps.
+We report both the closed-set metric ($\Delta$ ID accuracy) and the open-world metric (mixed-stream AUROC and the paired gap $\gap$).
+Results are averaged over the two OOD datasets and two corruptions.
+
+\subsection{Ranking Reversal}
+
+Table~\ref{tab:audit} and Figure~\ref{fig:ranking_reversal} present the audit results.
+
+\begin{table}[t]
+\centering\small
+\caption{%
+  Cross-method safety audit ($\alpha = 0.9$, avg over SVHN+DTD $\times$ gaussian noise+fog).
+  Panel A rank = closed-set rank by $\Delta$ID accuracy.
+  Panel B rank = open-world rank by mixed-stream AUROC.
+  All non-zero paired gaps are significant ($p < 0.05$ in all 24 adaptation cells).
+}
+\label{tab:audit}
+\begin{tabular}{lrrrrrcc}
+\toprule
+Method & $\Delta$ID & Mixed AUROC & id-only AUROC & Paired Gap & Panel A & Panel B \\
+\midrule
+No TTA   & $+0.000$ & $0.729$ & $0.729$ & $0.000$ & 3rd & \textbf{1st} \\
+TENT     & $+0.002$ & $0.692$ & $0.865$ & $+0.173$ & 2nd & 3rd \\
+ETA      & $+0.004$ & $0.692$ & $0.818$ & $+0.126$ & \textbf{1st} & 4th \\
+UniEnt+  & $-0.014$ & $0.714$ & $0.841$ & $+0.127$ & 4th & 2nd \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The ranking reversal is more extreme than expected:
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item \textbf{ETA}: rank \#1 by closed-set accuracy $\to$ rank \#4 by open-world AUROC.
+  \item \textbf{UniEnt+}: rank \#4 by closed-set accuracy $\to$ rank \#2 by open-world AUROC.
+  \item \textbf{No TTA}: rank \#3 by closed-set $\to$ rank \#1 by open-world.
+  \item \textbf{TENT and ETA} both \emph{hurt} mixed-stream AUROC below the no-adaptation baseline (0.692 vs. 0.729).
+\end{itemize}
+
+A practitioner using the closed-set leaderboard to select a TTA method for open-world deployment would choose ETA---which ranks joint-last by open-world AUROC in our audit at $\alpha{=}0.9$.
+
+\subsection{UniEnt+ Partially Recovers}
+
+UniEnt+ reduces the paired gap to $+0.127$ (vs. $+0.173$ for TENT), and its mixed-stream AUROC of $0.714$ is closer to the no-adaptation baseline of $0.729$.
+The entropy-maximization branch explicitly pushes the model toward uncertainty on pseudo-OOD samples, partially counteracting the gradient contamination.
+However, the gap does not close: UniEnt+'s mixed AUROC still falls $1.5$ percentage points below no adaptation.
+
+UniEnt+ also shows negative $\Delta$ID accuracy ($-0.014$) because the fixed entropy threshold $\tau = \log(C)/2$ mislabels uncertain corrupted ID samples as pseudo-OOD, spreading their predictions and reducing closed-set accuracy.
+This reflects a fundamental tradeoff: reducing OOD gradient contamination requires being willing to reduce adaptation on ambiguous ID samples too.
+
+\subsection{Why the Paired Protocol Is Still Needed}
+
+Even with UniEnt+, the paired gap ($+0.127$) is substantial and significant.
+Standard closed-set TTA evaluation---which reports only $\Delta$ID accuracy---would suggest UniEnt+ is the worst method (rank \#4), whereas the paired protocol shows it is the second safest for open-world deployment (rank \#2).
+Without the paired protocol, a practitioner has no way to distinguish a method that improves closed-set accuracy by destroying OOD safety (ETA) from one that carefully manages the tradeoff (UniEnt+).
+
+\subsection{Reporting Standard}
+
+We recommend that TTA papers targeting open-world deployment report, alongside ID accuracy, the paired contamination gap $\gap$ and the forfeit fraction $\forfeit$.
+A Pareto plot of $\Delta$ID accuracy vs.\ $\Delta$AUROC across methods (Figure~\ref{fig:pareto}) makes the adaptation--abstention tradeoff visible at a glance and prevents silent OOD safety failures from being masked by single-metric leaderboards.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\linewidth]{figures/fig5_pareto.png}
+  \caption{%
+    \textbf{Pareto tradeoff: ID accuracy gain vs.\ OOD AUROC change.}
+    \idonly{} (upper-right) improves both metrics.
+    $\mixed$ (lower-left) sacrifices OOD AUROC to gain marginal ID accuracy.
+    The ideal adaptation method would sit in the upper-right; current entropy-minimizing methods sit in the lower-right (ID gain at OOD cost) or lower-left (\mixed{} often hurts both).
+    This figure format, proposed as a reporting standard, makes the conflict visible.
+  }
+  \label{fig:pareto}
+\end{figure}
