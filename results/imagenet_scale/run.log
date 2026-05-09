@@ -10,3 +10,55 @@
 [08:19:38] INFO imagenet_scale:   id_only   AUROC(T)=0.7287  FPR95(T)=0.6885  Δ-AUROC=+0.2461 [+0.2309, +0.2619]
 [08:19:38] INFO imagenet_scale:   mixed     AUROC(T)=0.5391  FPR95(T)=0.8885  Δ-AUROC=+0.0564 [+0.0337, +0.0789]  p=5.77e-16
 [08:19:38] INFO imagenet_scale: [3/8] corruption=fog  ood=ninco  method=eata  alpha=0.9
+[08:20:57] INFO imagenet_scale:   no_tta    AUROC(T)=0.5354  FPR95(T)=0.7569  Δ-AUROC=+0.0000 [+0.0000, +0.0000]
+[08:20:57] INFO imagenet_scale:   id_only   AUROC(T)=0.5804  FPR95(T)=0.6259  Δ-AUROC=+0.0449 [+0.0265, +0.0627]
+[08:20:57] INFO imagenet_scale:   mixed     AUROC(T)=0.5174  FPR95(T)=0.8575  Δ-AUROC=-0.0180 [-0.0343, -0.0011]  p=8.57e-07
+[08:20:57] INFO imagenet_scale: [4/8] corruption=fog  ood=ninco  method=eata  alpha=0.5
+[08:22:07] INFO imagenet_scale:   no_tta    AUROC(T)=0.4749  FPR95(T)=0.8948  Δ-AUROC=+0.0000 [+0.0000, +0.0000]
+[08:22:07] INFO imagenet_scale:   id_only   AUROC(T)=0.5341  FPR95(T)=0.7635  Δ-AUROC=+0.0592 [+0.0478, +0.0708]
+[08:22:07] INFO imagenet_scale:   mixed     AUROC(T)=0.4709  FPR95(T)=0.9219  Δ-AUROC=-0.0040 [-0.0115, +0.0037]  p=8.93e-12
+[08:22:07] INFO imagenet_scale: [5/8] corruption=jpeg_compression  ood=ninco  method=tent  alpha=0.9
+[08:23:25] INFO imagenet_scale:   no_tta    AUROC(T)=0.4391  FPR95(T)=0.8425  Δ-AUROC=+0.0000 [+0.0000, +0.0000]
+[08:23:25] INFO imagenet_scale:   id_only   AUROC(T)=0.8256  FPR95(T)=0.4172  Δ-AUROC=+0.3865 [+0.3549, +0.4174]
+[08:23:25] INFO imagenet_scale:   mixed     AUROC(T)=0.4270  FPR95(T)=0.8782  Δ-AUROC=-0.0121 [-0.0541, +0.0328]  p=1.07e-18
+[08:23:25] INFO imagenet_scale: [6/8] corruption=jpeg_compression  ood=ninco  method=tent  alpha=0.5
+[08:24:35] INFO imagenet_scale:   no_tta    AUROC(T)=0.4141  FPR95(T)=0.9240  Δ-AUROC=+0.0000 [+0.0000, +0.0000]
+[08:24:35] INFO imagenet_scale:   id_only   AUROC(T)=0.7139  FPR95(T)=0.7323  Δ-AUROC=+0.2999 [+0.2790, +0.3214]
+[08:24:35] INFO imagenet_scale:   mixed     AUROC(T)=0.4650  FPR95(T)=0.9313  Δ-AUROC=+0.0510 [+0.0276, +0.0717]  p=1.49e-18
+[08:24:35] INFO imagenet_scale: [7/8] corruption=jpeg_compression  ood=ninco  method=eata  alpha=0.9
+[08:25:55] INFO imagenet_scale:   no_tta    AUROC(T)=0.4560  FPR95(T)=0.8230  Δ-AUROC=+0.0000 [+0.0000, +0.0000]
+[08:25:55] INFO imagenet_scale:   id_only   AUROC(T)=0.4666  FPR95(T)=0.7316  Δ-AUROC=+0.0105 [-0.0084, +0.0298]
+[08:25:55] INFO imagenet_scale:   mixed     AUROC(T)=0.4361  FPR95(T)=0.8724  Δ-AUROC=-0.0199 [-0.0393, -0.0013]  p=0.000533
+[08:25:55] INFO imagenet_scale: [8/8] corruption=jpeg_compression  ood=ninco  method=eata  alpha=0.5
+[08:27:05] INFO imagenet_scale:   no_tta    AUROC(T)=0.3944  FPR95(T)=0.9469  Δ-AUROC=+0.0000 [+0.0000, +0.0000]
+[08:27:05] INFO imagenet_scale:   id_only   AUROC(T)=0.4449  FPR95(T)=0.8396  Δ-AUROC=+0.0505 [+0.0399, +0.0598]
+[08:27:05] INFO imagenet_scale:   mixed     AUROC(T)=0.3695  FPR95(T)=0.9469  Δ-AUROC=-0.0248 [-0.0328, -0.0167]  p=9.69e-13
+[08:27:05] INFO imagenet_scale: corruption           ood      method alpha cond      AUROC(T)  FPR95(T)  Δ-AUROC  p
+[08:27:05] INFO imagenet_scale: -----------------------------------------------------------------------------------
+[08:27:05] INFO imagenet_scale: fog                  ninco    tent   0.9   no_tta    0.5740    0.7391    +0.0000  
+[08:27:05] INFO imagenet_scale: fog                  ninco    tent   0.9   id_only   0.8466    0.4236    +0.2725  
+[08:27:05] INFO imagenet_scale: fog                  ninco    tent   0.9   mixed     0.4952    0.8563    -0.0788  p=8.03e-15
+[08:27:05] INFO imagenet_scale: fog                  ninco    tent   0.5   no_tta    0.4826    0.8771    +0.0000  
+[08:27:05] INFO imagenet_scale: fog                  ninco    tent   0.5   id_only   0.7287    0.6885    +0.2461  
+[08:27:05] INFO imagenet_scale: fog                  ninco    tent   0.5   mixed     0.5391    0.8885    +0.0564  p=5.77e-16
+[08:27:05] INFO imagenet_scale: fog                  ninco    eata   0.9   no_tta    0.5354    0.7569    +0.0000  
+[08:27:05] INFO imagenet_scale: fog                  ninco    eata   0.9   id_only   0.5804    0.6259    +0.0449  
+[08:27:05] INFO imagenet_scale: fog                  ninco    eata   0.9   mixed     0.5174    0.8575    -0.0180  p=8.57e-07
+[08:27:05] INFO imagenet_scale: fog                  ninco    eata   0.5   no_tta    0.4749    0.8948    +0.0000  
+[08:27:05] INFO imagenet_scale: fog                  ninco    eata   0.5   id_only   0.5341    0.7635    +0.0592  
+[08:27:05] INFO imagenet_scale: fog                  ninco    eata   0.5   mixed     0.4709    0.9219    -0.0040  p=8.93e-12
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    tent   0.9   no_tta    0.4391    0.8425    +0.0000  
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    tent   0.9   id_only   0.8256    0.4172    +0.3865  
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    tent   0.9   mixed     0.4270    0.8782    -0.0121  p=1.07e-18
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    tent   0.5   no_tta    0.4141    0.9240    +0.0000  
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    tent   0.5   id_only   0.7139    0.7323    +0.2999  
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    tent   0.5   mixed     0.4650    0.9313    +0.0510  p=1.49e-18
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    eata   0.9   no_tta    0.4560    0.8230    +0.0000  
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    eata   0.9   id_only   0.4666    0.7316    +0.0105  
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    eata   0.9   mixed     0.4361    0.8724    -0.0199  p=0.000533
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    eata   0.5   no_tta    0.3944    0.9469    +0.0000  
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    eata   0.5   id_only   0.4449    0.8396    +0.0505  
+[08:27:05] INFO imagenet_scale: jpeg_compression     ninco    eata   0.5   mixed     0.3695    0.9469    -0.0248  p=9.69e-13
+[08:27:05] INFO imagenet_scale: Saved to results/imagenet_scale/imagenet_scale_results.json
+[08:27:05] INFO imagenet_scale: 
+Summary: mixed worse than id_only in 8/8 cells; p<0.05 in 8/8 cells.

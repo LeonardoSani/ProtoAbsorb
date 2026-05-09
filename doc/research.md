@@ -114,6 +114,16 @@ analysis in §2.
 
 ## 4. Experiment Timeline
 
+### Paired Protocol: id\_only as an Unrealizable Oracle
+
+We introduce `id_only` TENT as a **diagnostic oracle**, not a deployable method: it runs TENT exclusively on the subset of test samples drawn from the source distribution, a selection that requires ground-truth knowledge of which samples are in-distribution versus out-of-distribution—precisely the information that OOD detection systems are designed to produce.
+Because this label is unavailable at inference time in any realistic deployment, `id_only` TENT is strictly unrealizable and is included solely to establish a measurable upper bound on adaptation quality under zero contamination.
+The paired gap $\Delta = \text{Acc}(\texttt{id\_only}) - \text{Acc}(\texttt{mixed})$, computed over matched test streams that differ only in OOD composition, quantifies the performance cost attributable to contamination rather than to any other source of distribution shift.
+This gap serves as a calibrated diagnostic: a large $\Delta$ indicates that OOD samples are actively degrading batch statistics during adaptation, while a small $\Delta$ suggests the method is robust to the level of contamination present.
+The contribution of the paired protocol is therefore $\Delta$ itself as an interpretable, reproducible bound on contamination cost—not `id_only` as a system one would or could deploy.
+
+---
+
 ### Step 1 — Baseline Sanity ✓
 
 **Goal:** Verify setup is trustworthy before any contamination experiments.
@@ -148,20 +158,20 @@ Places365's anomalous behavior downstream.
 
 **Protocol:** gaussian_noise, MSP-AUROC, n=30, α ∈ {0.9, 0.75, 0.5, 0.25}.
 
-| OOD | α | id_only Δ [95% CI] | mixed Δ [95% CI] | paired gap | paired p |
-|---|---|---|---|---|---|
-| SVHN | 0.9 | +0.188 [+0.162,+0.212] | −0.043 [−0.100,+0.016] | +0.231 | 2.6e-08 |
-| SVHN | 0.75 | +0.130 [+0.114,+0.145] | −0.045 [−0.077,−0.010] | +0.175 | 1.2e-09 |
-| SVHN | 0.5 | +0.077 [+0.063,+0.092] | −0.052 [−0.081,−0.023] | +0.129 | 9.1e-09 |
-| SVHN | 0.25 | +0.027 [+0.012,+0.042] | −0.051 [−0.077,−0.022] | +0.078 | 1.6e-05 |
-| DTD | 0.9 | +0.209 [+0.182,+0.240] | −0.003 [−0.053,+0.050] | +0.212 | 7.9e-11 |
-| DTD | 0.75 | +0.166 [+0.154,+0.179] | −0.037 [−0.068,−0.005] | +0.203 | 3.5e-14 |
-| DTD | 0.5 | +0.119 [+0.102,+0.134] | −0.055 [−0.081,−0.029] | +0.174 | 5.2e-16 |
-| DTD | 0.25 | +0.097 [+0.073,+0.122] | −0.032 [−0.061,+0.001] | +0.129 | 9.6e-10 |
-| Places365 | 0.9 | +0.192 [+0.170,+0.215] | +0.016 [−0.008,+0.040] | +0.176 | 4.3e-14 |
-| Places365 | 0.75 | +0.153 [+0.136,+0.171] | +0.032 [+0.009,+0.055] | +0.121 | 1.1e-09 |
-| Places365 | 0.5 | +0.080 [+0.061,+0.100] | +0.020 [+0.001,+0.039] | +0.060 | 2.7e-05 |
-| Places365 | 0.25 | +0.018 [−0.003,+0.038] | +0.006 [−0.021,+0.036] | +0.012 | 0.44 (ns) |
+| OOD | α | id_only Δ [95% CI] | mixed Δ [95% CI] | paired gap | paired p | forfeit_fraction |
+|---|---|---|---|---|---|---|
+| SVHN | 0.9 | +0.188 [+0.162,+0.212] | −0.043 [−0.100,+0.016] | +0.231 | 2.6e-08 | 1.23 |
+| SVHN | 0.75 | +0.130 [+0.114,+0.145] | −0.045 [−0.077,−0.010] | +0.175 | 1.2e-09 | 1.35 |
+| SVHN | 0.5 | +0.077 [+0.063,+0.092] | −0.052 [−0.081,−0.023] | +0.129 | 9.1e-09 | 1.68 |
+| SVHN | 0.25 | +0.027 [+0.012,+0.042] | −0.051 [−0.077,−0.022] | +0.078 | 1.6e-05 | 2.89 |
+| DTD | 0.9 | +0.209 [+0.182,+0.240] | −0.003 [−0.053,+0.050] | +0.212 | 7.9e-11 | 1.01 |
+| DTD | 0.75 | +0.166 [+0.154,+0.179] | −0.037 [−0.068,−0.005] | +0.203 | 3.5e-14 | 1.22 |
+| DTD | 0.5 | +0.119 [+0.102,+0.134] | −0.055 [−0.081,−0.029] | +0.174 | 5.2e-16 | 1.46 |
+| DTD | 0.25 | +0.097 [+0.073,+0.122] | −0.032 [−0.061,+0.001] | +0.129 | 9.6e-10 | 1.33 |
+| Places365 | 0.9 | +0.192 [+0.170,+0.215] | +0.016 [−0.008,+0.040] | +0.176 | 4.3e-14 | 0.92 |
+| Places365 | 0.75 | +0.153 [+0.136,+0.171] | +0.032 [+0.009,+0.055] | +0.121 | 1.1e-09 | 0.79 |
+| Places365 | 0.5 | +0.080 [+0.061,+0.100] | +0.020 [+0.001,+0.039] | +0.060 | 2.7e-05 | 0.75 |
+| Places365 | 0.25 | +0.018 [−0.003,+0.038] | +0.006 [−0.021,+0.036] | +0.012 | 0.44 (ns) | 0.67 |
 
 **Verdict:** Paired gap always positive, significant in 11/12 cells. Mixed TENT's absolute sign
 does not flip for Places365 because pre-TTA separability is near zero — TTA has nothing to destroy,
@@ -175,20 +185,20 @@ but contamination still forfeits most of the adaptation benefit.
 
 Representative results at α=0.9 and α=0.5:
 
-| OOD | α | Det | id_only Δ | mixed Δ | paired p |
-|---|---|---|---|---|---|
-| DTD | 0.9 | MSP | +0.209 | −0.003 | 7.9e-11 |
-| DTD | 0.9 | Energy | +0.192 | −0.033 | 1.7e-12 |
-| DTD | 0.9 | Mahal | +0.055 | +0.024 | 2.9e-04 |
-| DTD | 0.5 | MSP | +0.119 | −0.055 | 5.2e-16 |
-| DTD | 0.5 | Energy | +0.113 | −0.065 | 2.6e-18 |
-| DTD | 0.5 | Mahal | +0.032 | +0.015 | 0.034 |
-| Places365 | 0.9 | MSP | +0.192 | +0.016 | 4.3e-14 |
-| Places365 | 0.9 | Energy | +0.186 | −0.011 | 4.5e-17 |
-| Places365 | 0.9 | Mahal | +0.066 | +0.018 | 1.2e-06 |
-| Places365 | 0.5 | MSP | +0.080 | +0.020 | 2.7e-05 |
-| Places365 | 0.5 | Energy | +0.075 | +0.006 | 3.2e-07 |
-| Places365 | 0.5 | Mahal | +0.028 | −0.003 | 2.2e-03 |
+| OOD | α | Det | id_only Δ | mixed Δ | paired p | forfeit_fraction |
+|---|---|---|---|---|---|---|
+| DTD | 0.9 | MSP | +0.209 | −0.003 | 7.9e-11 | 1.01 |
+| DTD | 0.9 | Energy | +0.192 | −0.033 | 1.7e-12 | 1.17 |
+| DTD | 0.9 | Mahal | +0.055 | +0.024 | 2.9e-04 | 0.56 |
+| DTD | 0.5 | MSP | +0.119 | −0.055 | 5.2e-16 | 1.46 |
+| DTD | 0.5 | Energy | +0.113 | −0.065 | 2.6e-18 | 1.58 |
+| DTD | 0.5 | Mahal | +0.032 | +0.015 | 0.034 | 0.53 |
+| Places365 | 0.9 | MSP | +0.192 | +0.016 | 4.3e-14 | 0.92 |
+| Places365 | 0.9 | Energy | +0.186 | −0.011 | 4.5e-17 | 1.06 |
+| Places365 | 0.9 | Mahal | +0.066 | +0.018 | 1.2e-06 | 0.73 |
+| Places365 | 0.5 | MSP | +0.080 | +0.020 | 2.7e-05 | 0.75 |
+| Places365 | 0.5 | Energy | +0.075 | +0.006 | 3.2e-07 | 0.92 |
+| Places365 | 0.5 | Mahal | +0.028 | −0.003 | 2.2e-03 | 1.11 |
 
 **Verdict:** Paired gap significant across all three detectors for DTD and Places365 at α ≥ 0.5.
 For DTD Mahalanobis, both conditions improve but id_only improves more — "same-sign degradation"
@@ -214,16 +224,16 @@ Confidence-sharpening story is confirmed.
 
 Representative results (TENT and EATA, gaussian_noise, α=0.9 and α=0.5):
 
-| OOD | Method | α | id_only Δ | mixed Δ | paired p |
-|---|---|---|---|---|---|
-| SVHN | TENT | 0.9 | +0.210 | −0.075 | 2.0e-08 |
-| SVHN | EATA | 0.9 | +0.118 | −0.107 | 1.2e-06 |
-| DTD | TENT | 0.9 | +0.217 | −0.027 | 3.1e-08 |
-| DTD | EATA | 0.9 | +0.146 | −0.013 | 4.6e-09 |
-| Places365 | TENT | 0.9 | +0.217 | +0.039 | 1.9e-08 |
-| Places365 | EATA | 0.9 | +0.130 | +0.011 | 1.6e-07 |
-| CIFAR-100 | TENT | 0.9 | +0.186 | −0.001 | 1.4e-06 |
-| CIFAR-100 | EATA | 0.9 | +0.131 | +0.015 | 7.2e-07 |
+| OOD | Method | α | id_only Δ | mixed Δ | paired p | forfeit_fraction |
+|---|---|---|---|---|---|---|
+| SVHN | TENT | 0.9 | +0.210 | −0.075 | 2.0e-08 | 1.36 |
+| SVHN | EATA | 0.9 | +0.118 | −0.107 | 1.2e-06 | 1.90 |
+| DTD | TENT | 0.9 | +0.217 | −0.027 | 3.1e-08 | 1.12 |
+| DTD | EATA | 0.9 | +0.146 | −0.013 | 4.6e-09 | 1.09 |
+| Places365 | TENT | 0.9 | +0.217 | +0.039 | 1.9e-08 | 0.82 |
+| Places365 | EATA | 0.9 | +0.130 | +0.011 | 1.6e-07 | 0.92 |
+| CIFAR-100 | TENT | 0.9 | +0.186 | −0.001 | 1.4e-06 | 1.01 |
+| CIFAR-100 | EATA | 0.9 | +0.131 | +0.015 | 7.2e-07 | 0.88 |
 
 Significance count (paired p<0.05 across 4 α values):
 
@@ -512,6 +522,14 @@ A complete solution requires an adaptation objective with an explicit open-set o
 7. **ImageNet-Scale Validation** — ResNet-50, ImageNet-C (fog + jpeg, sev-5), NINCO; 8/8 cells
    p<0.05; TENT gap up to 0.36 AUROC; EATA partially mitigated (consistent with BN mechanism)
 8. **Conclusion** — evaluation norm recommendation; paired protocol as reusable benchmark
+
+---
+
+## 9. Related Work Draft Fragments
+
+### Positioning Against OWTTT and WOODS
+
+Li et al. (OWTTT, NeurIPS 2023) extend test-time adaptation to open-world streams by detecting and clustering samples from unknown categories, treating open-world contamination as a problem to be solved by a richer adaptation algorithm. Gao et al. (WOODS) address OOD contamination in open-world semi-supervised learning, proposing training-time objectives that are robust to unlabeled OOD data mixed into the learning signal. Our work differs in kind rather than degree: we do not propose a new adaptation method, but instead introduce a paired diagnostic protocol that isolates and quantifies the objective-level cost that OOD contamination imposes on entropy-minimizing TTA—demonstrating through controlled ablation that this cost is mechanistically attributable to shared BatchNorm statistics rather than to gradient contamination alone, and providing a reproducible bound on what any entropy-based method forfeits relative to a contamination-free oracle.
 
 ---
 
