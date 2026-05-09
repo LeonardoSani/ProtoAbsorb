@@ -69,6 +69,24 @@ affine parameters `(γ, β)` are shared across the batch. Updates driven by ID s
 the representation of OOD samples in subsequent forward passes. Therefore `s(x_OOD)` decreases
 (model looks more confident on OOD) even when OOD samples are filtered from the gradient step.
 
+**Quantified by Ablation A:** Replacing BN with InstanceNorm reduces the paired gap by 88.9%
+(BN gap +0.130 → IN gap +0.014). ViT-S/16 (LayerNorm) independently replicates this residual
+(+0.013), triangulating that ~89% of the contamination penalty is BN-statistics contamination
+and ~11% is direct OOD-gradient contamination.
+
+### 2.4 Batch-size confound in the id_only oracle (known limitation)
+
+The `id_only` condition adapts on $\alpha B$ samples (the ID sub-batch) while `mixed` adapts on
+the full batch of $B$ samples. For BN-based TTA this confounds contamination with sub-batch
+statistics quality. The confound is addressed by the four-condition control (Step 8 below), but
+is worth noting as a caveat on the core paired-gap result.
+
+The confound is already partially bounded by the ViT/IN results: both use LayerNorm/InstanceNorm
+and still show significant paired gaps (+0.013, +0.014), matching the expected residual from
+gradient contamination alone. This makes it unlikely that the batch-size artifact accounts for
+most of the BN paired gap (+0.130), but the four-condition control (§Step 8) is needed to
+quantify it directly.
+
 ---
 
 ## 3. Origins: ProtoAbsorb (Superseded)
@@ -508,38 +526,117 @@ A complete solution requires an adaptation objective with an explicit open-set o
 
 ## 7. Paper Outline
 
-1. **Introduction** — open-world TTA; closed-set evaluation blind spot; paired gap as diagnostic
-2. **Background** — TENT/EATA; MSP/Energy/Mahal; prior work on TTA safety
-3. **Theory** — entropy minimization is class-closing, not novelty-aware (§2 above)
-4. **Paired protocol** — contamination isolation design; id_only as the right control
-5. **Results**
-   - Core: SVHN + DTD, 3 detectors, forest plot (Steps 2–3)
+> **Updated 2026-05-09** for 5/6 ACCV target. Paper is now framed as an **evaluation/protocol
+> paper**: primary contribution is the paired diagnostic + contamination-cost decomposition +
+> cross-method audit. The conflict itself is no longer claimed as a discovery (ROSETTA, UniEnt
+> pre-empt this); the novelty is the protocol that quantifies what each method still leaves unsolved.
+>
+> **ETA note:** The "EATA" implementation omits the Fisher regularizer and must be labeled **ETA**
+> throughout.
+
+1. **Introduction** — open-world TTA; standard eval blind spot; contributions:
+   (a) paired contamination protocol, (b) cost decomposition, (c) method audit showing
+   closed-set ranking ≠ mixed-stream ranking, (d) reporting standard
+2. **Background** — TENT/ETA; MSP/Energy/Mahal; OSTTA prior work (OWTTT, UniEnt, ROSETTA);
+   why existing methods reduce but do not eliminate the gap
+3. **Theory** — entropy minimization is class-closing, not novelty-aware; BN shared-stats pathway;
+   four-condition decomposition framework (§2.3–2.4)
+4. **Paired protocol** — contamination isolation design; id_only as oracle; four-condition control
+   decomposing sample-count vs BN-stats vs gradient contamination (Step 8)
+5. **Results I — Method Audit** *(new main result for 5/6)*
+   - Cross-method ranking table: No TTA / TENT / ETA / OWTTT / UniEnt+ under paired protocol
+   - Ranking reversal figure: Panel A (ΔID acc, closed-set) vs Panel B (mixed AUROC + gap)
+   - UniEnt+ reduces but does not eliminate the paired gap → protocol still needed
+6. **Results II — Characterization**
+   - Core paired gap: SVHN + DTD + Places365, 3 detectors, forest plot (Steps 2–3)
    - Generalization: 4 OODs × 2 methods, significance table (Step 5)
-   - Scaling: scatter Panel B (id_only Δ vs paired gap, r=+0.72) — main theory figure; Panel A as supplementary
-   - Mechanism: confidence sharpening + Pareto plot (Step 4)
-   - Fix: threshold filtering Pareto (Step 7)
-6. **Discussion** — three-way decomposition; Places365/CIFAR-100 boundary; BN ablation; limits
-7. **ImageNet-Scale Validation** — ResNet-50, ImageNet-C (fog + jpeg, sev-5), NINCO; 8/8 cells
-   p<0.05; TENT gap up to 0.36 AUROC; EATA partially mitigated (consistent with BN mechanism)
-8. **Conclusion** — evaluation norm recommendation; paired protocol as reusable benchmark
+   - Scaling: scatter Panel B (id_only Δ vs paired gap, r=+0.72)
+   - Mechanism: confidence sharpening + Pareto (Step 4)
+7. **Results III — ImageNet-Scale** — ResNet-50, fog+jpeg, NINCO; 8/8 cells; UniEnt+ anchor
+8. **Mitigation** — contamination-aware BN (Fix B); partial win expected; frames solution direction
+9. **Discussion** — three-way decomp; Places365/CIFAR-100 boundary; BN ablation; limits;
+   reporting standard recommendation
+10. **Conclusion** — paired gap as benchmark column; reporting norm for TTA papers
 
 ---
 
 ## 9. Related Work Draft Fragments
 
-### Positioning Against OWTTT and WOODS
+### Positioning Against OWTTT, UniEnt, and ROSETTA
 
-Li et al. (OWTTT, NeurIPS 2023) extend test-time adaptation to open-world streams by detecting and clustering samples from unknown categories, treating open-world contamination as a problem to be solved by a richer adaptation algorithm. Gao et al. (WOODS) address OOD contamination in open-world semi-supervised learning, proposing training-time objectives that are robust to unlabeled OOD data mixed into the learning signal. Our work differs in kind rather than degree: we do not propose a new adaptation method, but instead introduce a paired diagnostic protocol that isolates and quantifies the objective-level cost that OOD contamination imposes on entropy-minimizing TTA—demonstrating through controlled ablation that this cost is mechanistically attributable to shared BatchNorm statistics rather than to gradient contamination alone, and providing a reproducible bound on what any entropy-based method forfeits relative to a contamination-free oracle.
+Li et al. (OWTTT, ICCV 2023, arXiv:2308.06879) extend test-time adaptation to open-world streams
+by detecting and clustering unknown categories, treating contamination as a problem to be solved by
+a richer adaptation algorithm. Gao et al. (UniEnt/UniEnt+, CVPR 2024, arXiv:2404.06065) propose a
+unified entropy objective that applies entropy minimization to pseudo-ID samples and entropy
+maximization to pseudo-OOD samples, explicitly addressing the ID/OOD split at the loss level.
+Zhao et al. (ROSETTA, arXiv:2604.01589, April 2026) similarly frame an ID/OOD tradeoff in OSTTA
+and propose a new method to mitigate it.
+
+Our work differs in kind: we do not propose a new adaptation method, but introduce a **paired
+diagnostic protocol** that isolates and quantifies the contamination cost as a measurable gap
+between a contamination-free oracle (`id_only`) and realistic mixed-stream adaptation (`mixed`).
+Crucially, we evaluate this protocol **on existing OSTTA methods including UniEnt+** and show that
+the paired gap persists — partially reduced but not eliminated — even for methods explicitly
+designed for open-world streams. This means standard TTA evaluation (closed-set ID accuracy only)
+under-reports safety failures even when OSTTA methods are used, and the paired protocol is needed
+to quantify what remains unsolved.
+
+The distinction from ROSETTA and UniEnt is therefore not "we discovered the conflict" (they did
+too) but "we provide the evaluation tool that reveals how much each method actually solves."
 
 ---
 
 ## 8. Remaining Work
 
-| Priority | Action | Status |
-|---|---|---|
-| **Medium** | Draft paper §1–2 (intro + background) | TODO |
-| **Medium** | Generate figures from plotting scripts | Partial (scatter, decomp done) |
-| **Done** | Second backbone (ViT-S/16, one cell) | ✓ 98.80% acc, paired gap +0.013 p=2.6e-10 |
-| **Done** | ImageNet-scale validation (reviewer request) | ✓ 8/8 cells p<0.05; ResNet-50, fog+jpeg, NINCO |
-| **Medium** | Write paper §7 (ImageNet-scale, 1 table + prose) | TODO |
-| **Medium** | Add FPR95 to all existing CIFAR results tables | TODO |
+### New Planned Experiments (from ACCV review, 2026-05-09)
+
+| Priority | Action | Status | Notes |
+|---|---|---|---|
+| **HIGH** | Integrate UniEnt/UniEnt+ under paired protocol | TODO | Code: github.com/gaozhengqing/UniEnt |
+| **HIGH** | Cross-method ranking audit: No TTA / TENT / ETA / OWTTT / UniEnt+ | TODO | 2 OOD settings, 2 corruptions, CIFAR + ImageNet anchor |
+| **HIGH** | Ranking reversal figure (2 panels: ΔID acc vs mixed AUROC) | TODO | Built from UniEnt runs |
+| **HIGH** | 4-condition confound control | TODO | See §2.4 and Theory.md §9.2 |
+| **HIGH** | Fix B: contamination-aware BN mitigation | TODO | Pseudo-ID-only BN stats; see Theory.md §6 Fix B |
+| **Medium** | Relabel all EATA → ETA in paper, tables, code comments | TODO | `eata.py:17` omits Fisher regularizer |
+| **Medium** | Draft paper §1–2 (intro + background) | TODO | |
+| **Medium** | Generate figures from plotting scripts | Partial | Scatter, decomp done |
+| **Done** | Second backbone (ViT-S/16, one cell) | ✓ | 98.80% acc, paired gap +0.013 p=2.6e-10 |
+| **Done** | ImageNet-scale validation | ✓ | 8/8 cells p<0.05; ResNet-50, fog+jpeg, NINCO |
+| **Medium** | Write paper §7 (ImageNet-scale, 1 table + prose) | TODO | |
+| **Medium** | Add FPR95 to all existing CIFAR results tables | TODO | |
+
+### Step 8 — Four-Condition Confound Control (Planned)
+
+**Goal:** Decompose the contamination cost into three additive components to settle the batch-size
+confound objection and strengthen the BN-mechanism claim.
+
+**Four conditions (run on matched batches):**
+1. `id_subbatch` — current oracle: adapt on ID slice only, size αB
+2. `id_fullmatch` — fill OOD slots with extra corrupted ID samples so adaptation uses B ID samples
+3. `mixed_maskedloss` — full mixed batch forward (OOD in BN stats), but loss computed on ID slice
+4. `mixed` — current realistic condition (full batch, full loss)
+
+**Decomposition:**
+- `id_subbatch − id_fullmatch` = sample-count artifact (expected ≈ 0)
+- `id_fullmatch − mixed_maskedloss` = BN-statistics contamination (expected dominant, ~89%)
+- `mixed_maskedloss − mixed` = direct OOD-gradient contamination (expected ~11%)
+
+**Minimum cells:** SVHN α=0.5 + Places365 α=0.9, n=30 each.
+**Full appendix:** add SVHN α=0.9 + Places365 α=0.5.
+
+### Step 9 — Cross-Method Ranking Audit (Planned)
+
+**Goal:** Show that standard closed-set TTA evaluation mis-ranks method families compared to the
+paired mixed-stream safety evaluation. This is the primary 4/6 → 5/6 upgrade.
+
+**Methods:** No TTA / TENT / ETA / OWTTT / UniEnt / UniEnt+
+**Settings:** 2 OOD (SVHN + DTD), 2 corruptions (gaussian_noise + fog), α=0.5 and α=0.9, n=30
+**ImageNet anchor:** fog+jpeg, NINCO OOD, at least UniEnt+ added to existing TENT/ETA results
+
+**Output figure (2 panels):**
+- Panel A: ΔID accuracy under standard closed-set eval (x-axis: method)
+- Panel B: Mixed-stream AUROC + paired contamination gap (same methods)
+- Expected: TENT/ETA look good in Panel A, rank differently in Panel B; UniEnt+ improves Panel B
+
+**Reporting standard:** Every TTA paper should report: `ΔID accuracy` + `mixed-stream OOD AUROC`
++ `paired contamination gap (id_only − mixed)`. This is the actionable endpoint for the paper.

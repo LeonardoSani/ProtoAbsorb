@@ -1,16 +1,16 @@
 # ProtoAbsorb — Theoretical Background
 
-This document collects the theoretical pieces the experiments in this
-repository are built on. It deliberately stays close to what is verifiable
-from the source: the formal hypothesis as stated in
-[../Theory.md](../Theory.md), the concrete loss/optimizer used in
-[src/proto_absorb/tent.py](../src/proto_absorb/tent.py), and the standard
-results from the cited literature ([../Theory.md §9](../Theory.md#9-references)).
+This is the merged theory document for the ProtoAbsorb → Adaptation–Abstention Conflict
+project. It covers: (1) the formal setup and TENT mechanics, (2) the original prototype
+absorption hypothesis and what the experiments revealed, (3) the proposed fixes and their
+results, (4) the contamination cost decomposition framework, and (5) the critical
+observations that motivated the research pivot. The concrete loss/optimizer is implemented
+in [`src/proto_absorb/tent.py`](../src/proto_absorb/tent.py); experimental results are in
+[`doc/research.md`](./research.md).
 
-It does **not** prove convergence or claim mathematical guarantees beyond
-what those references establish. The "prototype absorption" hypothesis is
-treated here as exactly that — a hypothesis the experiments in
-[results.md](./results.md) test, and which is only partially supported.
+This document does **not** prove convergence or claim mathematical guarantees beyond what
+the cited references establish. The prototype absorption hypothesis (§3) is now superseded
+as the primary narrative — see §3.5 for the research pivot.
 
 ---
 
@@ -190,6 +190,14 @@ would be: *"the gap between mean OOD and mean ID distances to the frozen
 prototype bank shrinks under TENT,"* which is the quantity an MSP /
 Mahalanobis OOD detector ultimately depends on.
 
+**Research pivot (2026):** These limitations led to dropping the absorption framing as
+the primary narrative. The failure mode is real; the geometric explanation is not
+uniquely supported. The project reframed around an objective-level conflict: entropy
+minimization is class-closing (it sharpens every prediction toward its current argmax),
+while OOD safety requires staying uncertain on novel inputs — a direct conflict on OOD
+samples regardless of feature geometry. Legacy ProtoAbsorb experiments are preserved in
+`results/legacy/`; the current framing is in `doc/research.md §2`.
+
 ---
 
 ## 4. The OOD score functions
@@ -288,7 +296,39 @@ to. The result in §4 of [results.md](./results.md) is that Fix B's
 *more strongly*. The fix is mistargeted at the failure mode it tries to
 prevent.
 
-### 5.3 Fix C — Hard OOD filter
+### 5.3 Fix B (revised) — Contamination-Aware BatchNorm
+
+Ablation A (`doc/research.md §Ablation A`) shows ~89% of the contamination penalty
+comes from shared BN statistics, not from the gradient. The mechanism-aligned fix is
+therefore to compute BN adaptation statistics using only pseudo-ID samples, while still
+evaluating on the full mixed stream:
+
+```
+μ̂_γ, σ̂_γ  ←  BatchNorm stats over { x_i ∈ B : s(x_i) < τ }
+```
+
+where `s(x_i)` is an OOD score (MSP or entropy) and `τ` selects the pseudo-ID subset of
+the current batch. All other adaptation steps (gradient on the full batch) proceed normally.
+
+**Why this is mechanism-aligned:** It targets the dominant contamination pathway (shared
+BN statistics, ~89%) rather than the minor gradient pathway (~11%). Unlike Fix A and Fix C,
+which filter the gradient while leaving BN intact, this fix goes after the component
+Ablation A identifies as primary.
+
+**Status (2026-05-09):** TODO. Minimum experiment: SVHN α=0.5 and DTD α=0.5 under the
+paired protocol. Compare No TTA / TENT / ETA / Fix B (contamination-aware BN). Report
+ΔAUROC and paired gap.
+
+**Caveat:** At very low α (mostly OOD batches), the pseudo-ID subset may be too small for
+reliable statistics estimation; may need a minimum-size floor or fallback to running stats.
+
+**ETA labeling note:** The `eata.py` implementation omits the Fisher regularizer
+([`src/proto_absorb/eata.py:17`](../src/proto_absorb/eata.py#L17)) and must be labeled
+**ETA** throughout — not EATA. Full EATA requires the Fisher-importance update filter.
+
+---
+
+### 5.4 Fix C — Hard OOD filter
 
 Drop the top `drop_fraction` (default 25%) of the batch by entropy and
 take the vanilla TENT step on the remainder:
@@ -305,7 +345,7 @@ samples. The filter therefore drops the wrong tail of the batch in
 non-trivial cases. The Exp 3 numbers at α = 0.5 (worse than vanilla TENT)
 are consistent with this.
 
-### 5.4 Fix A+B
+### 5.5 Fix A+B
 
 Combine `L_A` and `λ · (anchor)`. In the saved results this reproduces
 Fix B's pathology (the anchor term dominates).
@@ -341,9 +381,65 @@ the setup actually controls for and what it does not.
 
 ---
 
-## 7. References
+## 7. Contamination Cost Decomposition
 
-(From [Theory.md §9](../Theory.md#9-references))
+### 7.1 The Batch-Size Confound in the id_only Oracle
+
+The `id_only` oracle adapts on the ID sub-batch of size `αB`, while `mixed` adapts on
+the full batch of size `B`. For BN-based TTA this introduces a confound: the paired gap
+conflates OOD contamination with a batch-size / statistics-quality effect (smaller batches
+give noisier BN estimates).
+
+The ViT/IN residual result partially bounds this — LayerNorm and InstanceNorm `id_only`
+conditions also adapt on `αB` samples and still show a significant paired gap (+0.013,
++0.014) — but a direct batch-size control is required to isolate contamination cleanly.
+
+### 7.2 Four-Condition Decomposition
+
+Run these four conditions on identical matched batches:
+
+| Condition | BN sees | Loss computed on | Adapts on |
+|---|---|---|---|
+| `id_subbatch` | ID slice (αB) | ID slice | αB ID samples |
+| `id_fullmatch` | ID only (B, replicated) | ID only | B ID samples |
+| `mixed_maskedloss` | Full batch (B) | ID slice only | ID gradient, OOD in BN |
+| `mixed` | Full batch (B) | Full batch | B mixed samples |
+
+The three additive components of the contamination cost are:
+
+```
+Δ_subbatch   = AUROC(id_subbatch) − AUROC(id_fullmatch)
+             → sample-count / BN noise artifact (expected ≈ 0)
+
+Δ_BN         = AUROC(id_fullmatch) − AUROC(mixed_maskedloss)
+             → BN-statistics contamination (expected dominant, ~89%)
+
+Δ_grad       = AUROC(mixed_maskedloss) − AUROC(mixed)
+             → direct OOD-gradient contamination (expected residual, ~11%)
+```
+
+If `Δ_subbatch ≈ 0` and `Δ_BN >> Δ_grad`, then the batch-size confound is negligible,
+the contamination-penalty claim is confirmed, and the BN-dominates-gradient mechanism
+claim is directly quantified.
+
+**Minimum experiment:** SVHN α=0.5 (far-OOD, absolute-failure case) + Places365 α=0.9
+(forfeit-without-sign-flip case), n=30 matched batches each.
+
+### 7.3 Implications for Fix Design
+
+The decomposition gives a precise target for any mitigation:
+
+- **Fix A and Fix C** filter the gradient pathway only → address `Δ_grad ≈ 11%`. This
+  explains why both produce null or near-null results: they leave ~89% of the mechanism
+  intact.
+- **Fix B (contamination-aware BN, §5.3)** targets `Δ_BN` directly → the correct
+  mechanism-aligned direction, with `id_fullmatch` as the upper bound on achievable gain.
+- `id_fullmatch` itself is not deployable (requires knowing which samples are ID), but
+  establishes what a perfect BN-level fix could achieve.
+
+---
+
+## 8. References
 
 [1] Wang, D., Shelhamer, E., Liu, S., Olshausen, B., & Darrell, T. (2021).
 *TENT: Fully Test-Time Adaptation by Entropy Minimization.* ICLR 2021.
@@ -361,3 +457,16 @@ Out-of-distribution Detection.* NeurIPS 2020.
 [5] Lee, K., Lee, K., Lee, H., & Shin, J. (2018). *A Simple Unified
 Framework for Detecting Out-of-Distribution Samples and Adversarial
 Attacks.* NeurIPS 2018. *(Mahalanobis score)*
+
+[6] Niu, S., Wu, J., Zhang, Y., Chen, Y., Zheng, S., Zhao, P., & Tan, M. (2022).
+*Efficient Test-Time Model Adaptation without Forgetting.* ICML 2022.
+*(EATA — full version includes Fisher regularizer; this codebase implements ETA only)*
+
+[7] Li, Y., et al. (2023). *On the Robustness of Open-World Test-Time Training:
+Self-Training with Dynamic Prototype Expansion.* ICCV 2023. *(OWTTT)*
+
+[8] Gao, Z., et al. (2024). *Unified Entropy Optimization for Open-Set Test-Time
+Adaptation.* CVPR 2024. *(UniEnt/UniEnt+; code: github.com/gaozhengqing/UniEnt)*
+
+[9] Zhao, W., et al. (2026). *ROSETTA* (working title). arXiv:2604.01589.
+*(Frames ID/OOD tradeoff in OSTTA; no public code as of 2026-05-09)*
