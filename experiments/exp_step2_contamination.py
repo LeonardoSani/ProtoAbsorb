@@ -98,37 +98,52 @@ def run_cell(
     return summary
 
 
+_COND_LABEL = {
+    "no_tta":  "No-Adapt",
+    "id_only": "ID-Oracle",
+    "mixed":   "Mixed-Adapt",
+}
+_COND_COLOR = {
+    "no_tta":  "tab:gray",
+    "id_only": "tab:blue",
+    "mixed":   "tab:red",
+}
+
+
 def forest_plot(results: dict, alphas: list[float], out_path: Path,
                 title: str) -> None:
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(figsize=(7.5, 0.55 * len(alphas) * 3 + 1.4))
     y_positions = []
     yticks_labels = []
-    color_map = {"no_tta": "tab:gray", "id_only": "tab:blue", "mixed": "tab:red"}
+    legend_done: set = set()
     y = 0
     for a in alphas:
         for cond in CONDITIONS:
             s = results[a][cond]
+            lbl = _COND_LABEL[cond] if cond not in legend_done else None
+            if lbl:
+                legend_done.add(cond)
             ax.errorbar(
                 s["delta_auroc_mean"], y,
                 xerr=[[s["delta_auroc_mean"] - s["delta_auroc_lo"]],
                       [s["delta_auroc_hi"] - s["delta_auroc_mean"]]],
-                fmt="o", color=color_map[cond], capsize=4, lw=1.5, markersize=6,
-                label=cond if y == 0 else None,
+                fmt="o", color=_COND_COLOR[cond], capsize=4, lw=1.5, markersize=6,
+                label=lbl,
             )
             y_positions.append(y)
-            yticks_labels.append(f"alpha={a}, {cond}")
+            yticks_labels.append(rf"$\alpha={a}$  {_COND_LABEL[cond]}")
             y += 1
         y += 0.5
     ax.axvline(0.0, ls="--", color="k", lw=1)
     ax.set_yticks(y_positions)
     ax.set_yticklabels(yticks_labels)
     ax.invert_yaxis()
-    ax.set_xlabel(r"$\Delta$AUROC = AUROC(T) - AUROC(0)  (95% CI)")
+    ax.set_xlabel(r"$\Delta$AUROC = AUROC(T) $-$ AUROC(0)  (95% CI)")
     ax.set_title(title)
-    handles, labels = ax.get_legend_handles_labels()
+    handles, labels_leg = ax.get_legend_handles_labels()
     if handles:
-        ax.legend(handles, labels, frameon=False, loc="upper right")
+        ax.legend(handles, labels_leg, frameon=False, loc="upper right")
     fig.tight_layout()
     fig.savefig(out_path, bbox_inches="tight", dpi=150)
     plt.close(fig)
@@ -194,7 +209,7 @@ def cli() -> None:
 
     forest_plot(main_results, args.alphas,
                 out_dir / f"forest_{args.main_corruption}.png",
-                title=f"Step 2 — Delta-AUROC, {args.main_corruption} (95% CI)")
+                title=f"Paired contamination gap — {args.main_corruption} (95% CI)")
 
     log.info("== Other corruptions (sanity / generalization) ==")
     other_results: dict[str, dict[float, dict]] = {}
@@ -214,7 +229,7 @@ def cli() -> None:
             other_results[c][a] = s
         forest_plot(other_results[c], args.alphas,
                     out_dir / f"forest_{c}.png",
-                    title=f"Step 2 — Delta-AUROC, {c} (95% CI)")
+                    title=f"Paired contamination gap — {c} (95% CI)")
 
     save_json({"main": {str(a): main_results[a] for a in args.alphas},
                "other": {c: {str(a): other_results[c][a] for a in args.alphas}

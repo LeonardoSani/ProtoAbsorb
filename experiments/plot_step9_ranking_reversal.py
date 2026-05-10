@@ -143,12 +143,12 @@ def plot(results: dict, out_stem: str) -> None:
             ax2.bar(xi, ia - ma, bottom=ma, width=bar_w,
                     color=colors[i], alpha=0.35,
                     hatch="///", edgecolor="white", lw=0,
-                    label="id_only gap" if i == 0 else "_")
+                    label="ID-Oracle gap" if i == 0 else "_")
 
     ax2.set_xticks(x)
     ax2.set_xticklabels(labels)
     ax2.set_ylabel("MSP-AUROC")
-    ax2.set_title("Panel B — Open-World Safety Ranking\n(mixed AUROC; hatching = paired gap to id_only)")
+    ax2.set_title("Panel B — Open-World Safety Ranking\n(mixed AUROC; hatching = gap to ID-Oracle)")
 
     for i, (bar, ra, rb) in enumerate(zip(bars_b, rank_a, rank_b)):
         top = iaur[i] if not np.isnan(iaur[i]) else maur[i]

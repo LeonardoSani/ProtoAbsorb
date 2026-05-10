@@ -62,10 +62,10 @@ _COLORS = {
     "mixed":            "tab:red",
 }
 _LABELS = {
-    "id_subbatch":      "id_subbatch (oracle, αB)",
-    "id_fullmatch":     "id_fullmatch (filled, B)",
-    "mixed_maskedloss": "mixed_maskedloss (BN only, no OOD grad)",
-    "mixed":            "mixed (realistic)",
+    "id_subbatch":      "ID-Subsample (oracle, αB)",
+    "id_fullmatch":     "ID-Padded (count control, B)",
+    "mixed_maskedloss": "BN-Exposed, Grad-Clean (BN only, no OOD grad)",
+    "mixed":            "Mixed-Adapt (realistic)",
 }
 
 
@@ -283,7 +283,7 @@ def forest_plot(results: dict, cells: list[tuple], out_path: Path) -> None:
             if lbl:
                 legend_done.add(cond)
             y_pos.append(y)
-            y_lbls.append(f"{ood} α={alpha}  {cond}")
+            y_lbls.append(f"{ood} α={alpha}  {_LABELS[cond]}")
             y += 1
         y += 0.6
 
@@ -292,7 +292,7 @@ def forest_plot(results: dict, cells: list[tuple], out_path: Path) -> None:
     ax.set_yticklabels(y_lbls, fontsize=7)
     ax.invert_yaxis()
     ax.set_xlabel(r"$\Delta$AUROC = AUROC(T) − AUROC(0)  [95% CI]")
-    ax.set_title("Step 8 — Four-Condition Confound Control")
+    ax.set_title("Four-Condition Mechanism Decomposition")
     handles, labels = ax.get_legend_handles_labels()
     if handles:
         ax.legend(handles, labels, frameon=False, fontsize=8, loc="lower left")
@@ -341,7 +341,7 @@ def decomposition_figure(results: dict, cells: list[tuple], out_path: Path) -> N
     # ---- Panel B: signed horizontal bars for each decomposition component ----
     comp_info = [
         ("sample_artifact",    "sample-count artifact",  "tab:gray"),
-        ("bn_contamination",   "BN effect (← beneficial = negative)", "tab:blue"),
+        ("bn_contamination",   "BN statistics (negative = beneficial)", "tab:blue"),
         ("grad_contamination", "OOD-gradient contamination",          "tab:red"),
     ]
     y = np.arange(n)
@@ -358,7 +358,7 @@ def decomposition_figure(results: dict, cells: list[tuple], out_path: Path) -> N
     ax_b.set_title("B  Decomposition", fontsize=10)
     ax_b.legend(fontsize=7, frameon=False, loc="lower right")
 
-    fig.suptitle("Step 8 — Four-Condition Confound Control", fontsize=11)
+    fig.suptitle("Four-Condition Mechanism Decomposition", fontsize=11)
     fig.tight_layout()
     fig.savefig(out_path, bbox_inches="tight", dpi=150)
     plt.close(fig)

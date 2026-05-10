@@ -121,21 +121,12 @@ def make_plot(rows: list[dict], out_path: Path, alpha: float) -> None:
         "font.size": 10,
     })
 
-    fig, axes = plt.subplots(1, 2, figsize=(10.0, 4.0))
+    fig, ax = plt.subplots(1, 1, figsize=(5.5, 4.2))
 
-    xs_all, ys_all, xs_id, ys_id = [], [], [], []
+    xs_id, ys_id = [], []
     for r in rows:
         cfg = OOD_CONFIGS[r["ood"]]
-        # Panel A: t0 vs paired_gap
-        axes[0].scatter(
-            r["t0_msp"], r["paired_gap"],
-            c=cfg["color"], marker=CORRUPTION_MARKERS.get(r["corruption"], "o"),
-            s=90, alpha=0.80, edgecolors="white", linewidths=0.5, zorder=3,
-        )
-        xs_all.append(r["t0_msp"])
-        ys_all.append(r["paired_gap"])
-        # Panel B: id_only Δ vs paired_gap
-        axes[1].scatter(
+        ax.scatter(
             r["id_delta"], r["paired_gap"],
             c=cfg["color"], marker=CORRUPTION_MARKERS.get(r["corruption"], "o"),
             s=90, alpha=0.80, edgecolors="white", linewidths=0.5, zorder=3,
@@ -143,37 +134,29 @@ def make_plot(rows: list[dict], out_path: Path, alpha: float) -> None:
         xs_id.append(r["id_delta"])
         ys_id.append(r["paired_gap"])
 
-    for ax, xs, ys, xlabel, title_suffix in [
-        (axes[0], xs_all, ys_all,
-         "Pre-TTA MSP-AUROC (corrupted ID vs OOD)",
-         "inverse scaling with pre-TTA separability"),
-        (axes[1], xs_id, ys_id,
-         r"id-only TENT $\Delta$AUROC",
-         "scales with available adaptation benefit"),
-    ]:
-        m, b, r_val, p_val = fit_line(xs, ys)
-        x_range = np.linspace(min(xs) - 0.01, max(xs) + 0.01, 100)
-        ax.plot(x_range, m * x_range + b, "k--", lw=1.5, zorder=2,
-                label=f"r={r_val:.2f}, p={p_val:.2g}")
-        ax.set_xlabel(xlabel, fontsize=9)
-        ax.set_ylabel("Paired gap (id_only − mixed ΔAUROC)", fontsize=9)
-        ax.set_title(f"Contamination penalty —\n{title_suffix}", fontsize=9)
-        ax.legend(fontsize=8, loc="best", framealpha=0.9, edgecolor="none")
-        print(f"  {title_suffix}: r={r_val:.3f}, p={p_val:.3g}, n={len(xs)}")
+    m, b, r_val, p_val = fit_line(xs_id, ys_id)
+    x_range = np.linspace(min(xs_id) - 0.005, max(xs_id) + 0.005, 100)
+    ax.plot(x_range, m * x_range + b, "k--", lw=1.5, zorder=2,
+            label=f"r={r_val:.2f}, p={p_val:.2g}")
+    ax.set_xlabel(r"ID-Oracle $\Delta$AUROC", fontsize=10)
+    ax.set_ylabel(r"Paired gap ($\Delta$AUROC: ID-Oracle $-$ Mixed-Adapt)", fontsize=9)
+    ax.set_title("Contamination penalty scales\nwith adaptation benefit available", fontsize=10)
+    ax.legend(fontsize=9, loc="upper left", framealpha=0.9, edgecolor="none")
+    print(f"  scales with id-only delta: r={r_val:.3f}, p={p_val:.3g}, n={len(xs_id)}")
 
-    # shared legend: OOD by color
+    # legend: OOD by color + corruption by marker
     ood_handles = [
         Patch(facecolor=cfg["color"], label=cfg["label"])
         for ood, cfg in OOD_CONFIGS.items()
     ]
     corr_handles = [
-        Line2D([0], [0], marker=m, color="gray", lw=0, markersize=7, label=c)
-        for c, m in CORRUPTION_MARKERS.items() if any(r["corruption"] == c for r in rows)
+        Line2D([0], [0], marker=mk, color="gray", lw=0, markersize=7, label=c)
+        for c, mk in CORRUPTION_MARKERS.items() if any(r["corruption"] == c for r in rows)
     ]
     fig.legend(handles=ood_handles + corr_handles, fontsize=7,
-               loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.06),
+               loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.08),
                framealpha=0.9, edgecolor="none")
-    fig.suptitle(rf"$\alpha={alpha}$, n={len(rows)} (OOD × corruption) cells",
+    fig.suptitle(rf"$\alpha={alpha}$, $n={len(rows)}$ (OOD $\times$ corruption) cells",
                  fontsize=9, y=1.01)
     fig.tight_layout()
     fig.savefig(out_path, bbox_inches="tight")

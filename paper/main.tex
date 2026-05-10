@@ -32,15 +32,16 @@
 \maketitle
 
 \begin{abstract}
-We study a concrete open-world deployment failure: when test batches mix corrupted in-distribution (ID) and out-of-distribution (OOD) samples, entropy-minimizing TTA sharpens predictions on \emph{all} inputs---including OOD inputs whose uncertainty should be preserved---creating a direct conflict with OOD detection.
-We introduce a \emph{paired contamination protocol} that isolates this conflict, pairing an ID-only oracle against realistic mixed-batch adaptation on identical test streams under a \emph{frozen-detector evaluation contract}---measuring compatibility with a pre-deployed detector that is not co-maintained during adaptation, the relevant contract for systems where the detector was calibrated before deployment.
-Across 4 OOD datasets, 2 TTA methods (TENT, ETA), 4 ID fractions, and 5 OOD detectors (MSP, Energy, Mahalanobis, KNN, ViM), the oracle consistently outperforms the realistic baseline for confidence-based and KNN-based detectors (27/32 cells, $p < 0.05$ BH-corrected), with mixed-batch adaptation forfeiting up to $2.89\times$ the gradient-clean OOD-detection benefit in our tested settings (absolute gap up to $+0.345$).
-A four-condition mechanistic decomposition identifies \emph{OOD gradient contamination} as the dominant driver (+120--456\% of the total gap), while BatchNorm exposure to OOD inputs without the gradient is actively beneficial in all tested conditions.
-We replicate at ImageNet scale (8/8 cells, ResNet-50, NINCO) and in sequential 100-batch streams including non-stationary contamination (8/8 and 16/16 cells).
-A cross-method audit across six families (No TTA, TENT, ETA, UniEnt+, SAR, CoTTA) reveals that in our heavy-contamination setting ($\alpha{=}0.9$), ETA ranks first by closed-set accuracy but last by mixed-stream AUROC among entropy-minimizing methods, while CoTTA and SAR substantially narrow the gap---demonstrating that the protocol captures a differentiable safety property.
-We recommend reporting the paired contamination gap alongside ID accuracy for TTA work targeting open-world deployment.
-\keywords{test-time adaptation \and out-of-distribution detection \and open-world evaluation \and entropy minimization \and paired protocol}
+Test-time adaptation (TTA) is typically evaluated by closed-set accuracy on shifted in-distribution (ID) data, but real deployments often process mixed streams that include out-of-distribution (OOD) inputs.
+In such streams, entropy-minimizing TTA sharpens predictions on all samples, creating a direct tension with OOD detection, which relies on preserving low confidence on OOD inputs.
+We introduce a \emph{paired contamination protocol} to quantify this tension under a \emph{frozen-detector evaluation contract}: we compare an \textbf{ID-only oracle} that adapts on ID samples only (diagnostic, not deployable) against \textbf{mixed-stream adaptation} on the same test streams, while evaluating a pre-deployed OOD detector not updated during adaptation.
+The resulting \emph{paired gap} isolates the OOD-detection benefit lost to OOD contamination in the adaptation loss.
+Across four OOD datasets, multiple ID fractions, and five detectors, mixed-batch entropy minimization frequently forfeits most of the OOD-detection gain available under gradient-clean adaptation, and in many tested settings leaves OOD detection worse than no adaptation.
+A four-condition mechanistic control attributes the gap primarily to \textbf{OOD gradient contamination}, while exposing BatchNorm to OOD inputs \emph{without} including them in the loss is consistently beneficial---overturning the hypothesis that shared batch statistics are the culprit.
+We replicate the effect at ImageNet scale and in sequential streams with non-stationary contamination.
+A cross-method audit reveals that closed-set accuracy improvements can mis-rank methods for open-world OOD safety, motivating the paired gap as a required reporting metric alongside standard TTA benchmarks.
 \end{abstract}
+\keywords{test-time adaptation \and out-of-distribution detection \and open-world evaluation \and entropy minimization \and paired protocol}
 
 \input{sections/01_introduction}
 \input{sections/02_background}
