@@ -1,0 +1,101 @@
+warning: `VIRTUAL_ENV=/home/xyz/anaconda3` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+[18:07:40] INFO rebuttal4_nonstationary: Device: cuda
+[18:07:40] INFO rebuttal4_nonstationary: [1/40] pattern=burst ood=svhn method=tent seed=4200
+[18:07:44] INFO rebuttal4_nonstationary:   mean_gap=+0.1594  id_only=0.6139  mixed=0.4546
+[18:07:44] INFO rebuttal4_nonstationary: [2/40] pattern=burst ood=svhn method=tent seed=4201
+[18:07:47] INFO rebuttal4_nonstationary:   mean_gap=+0.1638  id_only=0.6264  mixed=0.4626
+[18:07:47] INFO rebuttal4_nonstationary: [3/40] pattern=burst ood=svhn method=tent seed=4202
+[18:07:50] INFO rebuttal4_nonstationary:   mean_gap=+0.1400  id_only=0.6150  mixed=0.4750
+[18:07:50] INFO rebuttal4_nonstationary: [4/40] pattern=burst ood=svhn method=tent seed=4203
+[18:07:54] INFO rebuttal4_nonstationary:   mean_gap=+0.1579  id_only=0.5943  mixed=0.4364
+[18:07:54] INFO rebuttal4_nonstationary: [5/40] pattern=burst ood=svhn method=tent seed=4204
+[18:07:57] INFO rebuttal4_nonstationary:   mean_gap=+0.1624  id_only=0.6160  mixed=0.4535
+[18:07:57] INFO rebuttal4_nonstationary:   → overall gap = +0.1567 ± 0.0086
+[18:07:57] INFO rebuttal4_nonstationary: [6/40] pattern=burst ood=svhn method=eta seed=4200
+[18:08:01] INFO rebuttal4_nonstationary:   mean_gap=+0.1821  id_only=0.6174  mixed=0.4353
+[18:08:01] INFO rebuttal4_nonstationary: [7/40] pattern=burst ood=svhn method=eta seed=4201
+[18:08:05] INFO rebuttal4_nonstationary:   mean_gap=+0.1614  id_only=0.6194  mixed=0.4580
+[18:08:05] INFO rebuttal4_nonstationary: [8/40] pattern=burst ood=svhn method=eta seed=4202
+[18:08:09] INFO rebuttal4_nonstationary:   mean_gap=+0.1541  id_only=0.6136  mixed=0.4595
+[18:08:09] INFO rebuttal4_nonstationary: [9/40] pattern=burst ood=svhn method=eta seed=4203
+[18:08:13] INFO rebuttal4_nonstationary:   mean_gap=+0.1672  id_only=0.5953  mixed=0.4282
+[18:08:13] INFO rebuttal4_nonstationary: [10/40] pattern=burst ood=svhn method=eta seed=4204
+[18:08:17] INFO rebuttal4_nonstationary:   mean_gap=+0.1656  id_only=0.6135  mixed=0.4479
+[18:08:17] INFO rebuttal4_nonstationary:   → overall gap = +0.1661 ± 0.0092
+[18:08:17] INFO rebuttal4_nonstationary: [11/40] pattern=burst ood=dtd method=tent seed=4200
+[18:08:22] INFO rebuttal4_nonstationary:   mean_gap=+0.0674  id_only=0.7022  mixed=0.6348
+[18:08:22] INFO rebuttal4_nonstationary: [12/40] pattern=burst ood=dtd method=tent seed=4201
+[18:08:27] INFO rebuttal4_nonstationary:   mean_gap=+0.0570  id_only=0.6659  mixed=0.6089
+[18:08:27] INFO rebuttal4_nonstationary: [13/40] pattern=burst ood=dtd method=tent seed=4202
+[18:08:32] INFO rebuttal4_nonstationary:   mean_gap=+0.0671  id_only=0.7038  mixed=0.6367
+[18:08:32] INFO rebuttal4_nonstationary: [14/40] pattern=burst ood=dtd method=tent seed=4203
+[18:08:37] INFO rebuttal4_nonstationary:   mean_gap=+0.0638  id_only=0.6990  mixed=0.6352
+[18:08:37] INFO rebuttal4_nonstationary: [15/40] pattern=burst ood=dtd method=tent seed=4204
+[18:08:42] INFO rebuttal4_nonstationary:   mean_gap=+0.0747  id_only=0.6820  mixed=0.6072
+[18:08:42] INFO rebuttal4_nonstationary:   → overall gap = +0.0660 ± 0.0058
+[18:08:42] INFO rebuttal4_nonstationary: [16/40] pattern=burst ood=dtd method=eta seed=4200
+[18:08:48] INFO rebuttal4_nonstationary:   mean_gap=+0.0396  id_only=0.7000  mixed=0.6604
+[18:08:48] INFO rebuttal4_nonstationary: [17/40] pattern=burst ood=dtd method=eta seed=4201
+[18:08:54] INFO rebuttal4_nonstationary:   mean_gap=+0.0483  id_only=0.6608  mixed=0.6125
+[18:08:54] INFO rebuttal4_nonstationary: [18/40] pattern=burst ood=dtd method=eta seed=4202
+[18:08:59] INFO rebuttal4_nonstationary:   mean_gap=+0.0545  id_only=0.6981  mixed=0.6436
+[18:08:59] INFO rebuttal4_nonstationary: [19/40] pattern=burst ood=dtd method=eta seed=4203
+[18:09:05] INFO rebuttal4_nonstationary:   mean_gap=+0.0513  id_only=0.6938  mixed=0.6426
+[18:09:05] INFO rebuttal4_nonstationary: [20/40] pattern=burst ood=dtd method=eta seed=4204
+[18:09:11] INFO rebuttal4_nonstationary:   mean_gap=+0.0452  id_only=0.6789  mixed=0.6337
+[18:09:11] INFO rebuttal4_nonstationary:   → overall gap = +0.0478 ± 0.0051
+[18:09:11] INFO rebuttal4_nonstationary: [21/40] pattern=sinusoidal ood=svhn method=tent seed=4200
+[18:09:14] INFO rebuttal4_nonstationary:   mean_gap=+0.0252  id_only=0.6017  mixed=0.5765
+[18:09:14] INFO rebuttal4_nonstationary: [22/40] pattern=sinusoidal ood=svhn method=tent seed=4201
+[18:09:17] INFO rebuttal4_nonstationary:   mean_gap=+0.0375  id_only=0.6054  mixed=0.5679
+[18:09:17] INFO rebuttal4_nonstationary: [23/40] pattern=sinusoidal ood=svhn method=tent seed=4202
+[18:09:21] INFO rebuttal4_nonstationary:   mean_gap=+0.0299  id_only=0.5919  mixed=0.5621
+[18:09:21] INFO rebuttal4_nonstationary: [24/40] pattern=sinusoidal ood=svhn method=tent seed=4203
+[18:09:24] INFO rebuttal4_nonstationary:   mean_gap=+0.0450  id_only=0.5997  mixed=0.5547
+[18:09:24] INFO rebuttal4_nonstationary: [25/40] pattern=sinusoidal ood=svhn method=tent seed=4204
+[18:09:27] INFO rebuttal4_nonstationary:   mean_gap=+0.0521  id_only=0.6001  mixed=0.5480
+[18:09:27] INFO rebuttal4_nonstationary:   → overall gap = +0.0379 ± 0.0098
+[18:09:27] INFO rebuttal4_nonstationary: [26/40] pattern=sinusoidal ood=svhn method=eta seed=4200
+[18:09:31] INFO rebuttal4_nonstationary:   mean_gap=+0.0265  id_only=0.6082  mixed=0.5817
+[18:09:31] INFO rebuttal4_nonstationary: [27/40] pattern=sinusoidal ood=svhn method=eta seed=4201
+[18:09:35] INFO rebuttal4_nonstationary:   mean_gap=+0.0299  id_only=0.6029  mixed=0.5730
+[18:09:35] INFO rebuttal4_nonstationary: [28/40] pattern=sinusoidal ood=svhn method=eta seed=4202
+[18:09:39] INFO rebuttal4_nonstationary:   mean_gap=+0.0352  id_only=0.6027  mixed=0.5676
+[18:09:39] INFO rebuttal4_nonstationary: [29/40] pattern=sinusoidal ood=svhn method=eta seed=4203
+[18:09:43] INFO rebuttal4_nonstationary:   mean_gap=+0.0321  id_only=0.6039  mixed=0.5718
+[18:09:43] INFO rebuttal4_nonstationary: [30/40] pattern=sinusoidal ood=svhn method=eta seed=4204
+[18:09:47] INFO rebuttal4_nonstationary:   mean_gap=+0.0413  id_only=0.6016  mixed=0.5603
+[18:09:47] INFO rebuttal4_nonstationary:   → overall gap = +0.0330 ± 0.0050
+[18:09:47] INFO rebuttal4_nonstationary: [31/40] pattern=sinusoidal ood=dtd method=tent seed=4200
+[18:09:54] INFO rebuttal4_nonstationary:   mean_gap=+0.0483  id_only=0.6889  mixed=0.6406
+[18:09:54] INFO rebuttal4_nonstationary: [32/40] pattern=sinusoidal ood=dtd method=tent seed=4201
+[18:10:00] INFO rebuttal4_nonstationary:   mean_gap=+0.0450  id_only=0.6659  mixed=0.6210
+[18:10:00] INFO rebuttal4_nonstationary: [33/40] pattern=sinusoidal ood=dtd method=tent seed=4202
+[18:10:07] INFO rebuttal4_nonstationary:   mean_gap=+0.0454  id_only=0.6680  mixed=0.6226
+[18:10:07] INFO rebuttal4_nonstationary: [34/40] pattern=sinusoidal ood=dtd method=tent seed=4203
+[18:10:15] INFO rebuttal4_nonstationary:   mean_gap=+0.0356  id_only=0.6712  mixed=0.6356
+[18:10:15] INFO rebuttal4_nonstationary: [35/40] pattern=sinusoidal ood=dtd method=tent seed=4204
+[18:10:22] INFO rebuttal4_nonstationary:   mean_gap=+0.0480  id_only=0.6734  mixed=0.6254
+[18:10:22] INFO rebuttal4_nonstationary:   → overall gap = +0.0445 ± 0.0046
+[18:10:22] INFO rebuttal4_nonstationary: [36/40] pattern=sinusoidal ood=dtd method=eta seed=4200
+[18:10:30] INFO rebuttal4_nonstationary:   mean_gap=+0.0321  id_only=0.6840  mixed=0.6519
+[18:10:30] INFO rebuttal4_nonstationary: [37/40] pattern=sinusoidal ood=dtd method=eta seed=4201
+[18:10:37] INFO rebuttal4_nonstationary:   mean_gap=+0.0404  id_only=0.6596  mixed=0.6192
+[18:10:37] INFO rebuttal4_nonstationary: [38/40] pattern=sinusoidal ood=dtd method=eta seed=4202
+[18:10:45] INFO rebuttal4_nonstationary:   mean_gap=+0.0299  id_only=0.6676  mixed=0.6377
+[18:10:45] INFO rebuttal4_nonstationary: [39/40] pattern=sinusoidal ood=dtd method=eta seed=4203
+[18:10:52] INFO rebuttal4_nonstationary:   mean_gap=+0.0253  id_only=0.6708  mixed=0.6455
+[18:10:52] INFO rebuttal4_nonstationary: [40/40] pattern=sinusoidal ood=dtd method=eta seed=4204
+[18:11:00] INFO rebuttal4_nonstationary:   mean_gap=+0.0379  id_only=0.6693  mixed=0.6315
+[18:11:00] INFO rebuttal4_nonstationary:   → overall gap = +0.0331 ± 0.0054
+[18:11:00] INFO rebuttal4_nonstationary: Saved → results/rebuttal4/nonstationary_results.json
+[18:11:00] INFO rebuttal4_nonstationary: 
+=== Summary ===
+[18:11:00] INFO rebuttal4_nonstationary:   burst|svhn|tent: overall_gap=+0.1567 ± 0.0086
+[18:11:00] INFO rebuttal4_nonstationary:   burst|svhn|eta: overall_gap=+0.1661 ± 0.0092
+[18:11:00] INFO rebuttal4_nonstationary:   burst|dtd|tent: overall_gap=+0.0660 ± 0.0058
+[18:11:00] INFO rebuttal4_nonstationary:   burst|dtd|eta: overall_gap=+0.0478 ± 0.0051
+[18:11:00] INFO rebuttal4_nonstationary:   sinusoidal|svhn|tent: overall_gap=+0.0379 ± 0.0098
+[18:11:00] INFO rebuttal4_nonstationary:   sinusoidal|svhn|eta: overall_gap=+0.0330 ± 0.0050
+[18:11:00] INFO rebuttal4_nonstationary:   sinusoidal|dtd|tent: overall_gap=+0.0445 ± 0.0046
+[18:11:00] INFO rebuttal4_nonstationary:   sinusoidal|dtd|eta: overall_gap=+0.0331 ± 0.0054

@@ -1,0 +1,30 @@
+warning: `VIRTUAL_ENV=/home/xyz/anaconda3` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+[12:10:03] INFO step10: Running: method=tent ood=svhn alpha=0.9
+[12:10:50] INFO step10:   gap=0.308 p=0.0001
+[12:10:50] INFO step10: Running: method=tent ood=svhn alpha=0.5
+[12:11:32] INFO step10:   gap=0.189 p=0.0000
+[12:11:32] INFO step10: Running: method=tent ood=dtd alpha=0.9
+[12:12:20] INFO step10:   gap=0.268 p=0.0000
+[12:12:20] INFO step10: Running: method=tent ood=dtd alpha=0.5
+[12:13:19] INFO step10:   gap=0.228 p=0.0000
+[12:13:19] INFO step10: Running: method=eta ood=svhn alpha=0.9
+[12:14:11] INFO step10:   gap=0.301 p=0.0001
+[12:14:11] INFO step10: Running: method=eta ood=svhn alpha=0.5
+[12:14:58] INFO step10:   gap=0.204 p=0.0001
+[12:14:58] INFO step10: Running: method=eta ood=dtd alpha=0.9
+[12:15:51] INFO step10:   gap=0.259 p=0.0001
+[12:15:51] INFO step10: Running: method=eta ood=dtd alpha=0.5
+[12:16:55] INFO step10:   gap=0.210 p=0.0000
+[12:16:56] INFO step10: Done. Results in results/step10/
+
+=== Streaming Summary (8 cells) ===
+Method   OOD    α     NoTTA   IDonly  Mixed   Gap     p
+eta      dtd     0.5  0.649   0.742   0.532   0.210  0.0000
+eta      dtd     0.9  0.663   0.816   0.558   0.259  0.0001
+eta      svhn    0.5  0.590   0.660   0.456   0.204  0.0001
+eta      svhn    0.9  0.581   0.726   0.425   0.301  0.0001
+tent     dtd     0.5  0.649   0.743   0.515   0.228  0.0000
+tent     dtd     0.9  0.663   0.822   0.554   0.268  0.0000
+tent     svhn    0.5  0.590   0.648   0.459   0.189  0.0000
+tent     svhn    0.9  0.581   0.758   0.450   0.308  0.0001
+Saved trajectory figure: results/step10/streaming_trajectory.png

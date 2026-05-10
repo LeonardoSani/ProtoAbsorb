@@ -3,7 +3,7 @@
 
 \subsection{Forest Plots: DTD and Places365}
 
-Additional forest plots for DTD and Places365 OOD datasets are provided in Figure~\ref{fig:forest_dtd_places} (see \texttt{results/figures/step2\_dtd\_forest.png} and \texttt{results/step2\_places365/}).
+Additional forest plots for DTD and Places365 OOD datasets are provided in Figure~\ref{fig:forest_dtd_places}.
 The pattern is consistent with SVHN: \idonly{} outperforms \mixed{} at all $\alpha \ge 0.5$; Places365 shows smaller absolute gaps due to near-chance pre-TTA AUROC.
 
 \subsection{BN vs.\ InstanceNorm Ablation}
@@ -25,12 +25,12 @@ The pattern is consistent with SVHN: \idonly{} outperforms \mixed{} at all $\alp
 ViT-S/16 (LayerNorm, 98.80\% CIFAR-10 accuracy) shows a paired gap of $+0.013$ ($p = 2.6 \times 10^{-10}$, SVHN, $\alpha=0.5$, gaussian noise).
 This exactly matches the ResNet-18/InstanceNorm residual of $+0.014$, providing convergent evidence that gradient contamination persists without shared batch statistics.
 
-\subsection{Step 9 Full Results}
+\subsection{Cross-Method Audit Full Results}
 
-Full 32-cell Step 9 results are in \texttt{results/step9/ranking\_audit\_results.json}.
+Full 32-cell audit results are available in the supplementary materials.
 Results at $\alpha = 0.5$ show the same ranking reversal pattern as $\alpha = 0.9$, with smaller absolute gaps consistent with the scatter analysis (Section~\ref{sec:characterization}).
 
-\subsection{Detector Breadth (Step 3)}
+\subsection{Detector Breadth}
 
 Additional results for Energy and Mahalanobis detectors across DTD and Places365 confirm that the paired gap is not specific to MSP.
 For DTD $\alpha = 0.9$: Energy gap $= +0.225$ ($p = 1.7 \times 10^{-12}$); Mahalanobis gap $= +0.031$ ($p = 2.9 \times 10^{-4}$).

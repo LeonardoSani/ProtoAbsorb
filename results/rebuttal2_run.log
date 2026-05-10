@@ -1,0 +1,110 @@
+warning: `VIRTUAL_ENV=/home/xyz/anaconda3` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+[18:07:37] INFO rebuttal2_baselines: Device: cuda
+[18:07:37] INFO rebuttal2_baselines: [1/48] gaussian_noise|svhn|no_tta|0.9
+[18:07:41] INFO rebuttal2_baselines:   mixed=0.5486  id_only=0.5486  gap=+0.0000  p=nan
+[18:07:41] INFO rebuttal2_baselines: [2/48] gaussian_noise|svhn|no_tta|0.5
+[18:07:47] INFO rebuttal2_baselines:   mixed=0.6191  id_only=0.6191  gap=+0.0000  p=nan
+[18:07:47] INFO rebuttal2_baselines: [3/48] gaussian_noise|svhn|tent|0.9
+[18:08:02] INFO rebuttal2_baselines:   mixed=0.5639  id_only=0.6755  gap=+0.1116  p=6.18e-07
+[18:08:02] INFO rebuttal2_baselines: [4/48] gaussian_noise|svhn|tent|0.5
+[18:08:16] INFO rebuttal2_baselines:   mixed=0.5487  id_only=0.6224  gap=+0.0737  p=9.9e-13
+[18:08:16] INFO rebuttal2_baselines: [5/48] gaussian_noise|svhn|eta|0.9
+[18:08:30] INFO rebuttal2_baselines:   mixed=0.5406  id_only=0.6474  gap=+0.1068  p=3.13e-07
+[18:08:30] INFO rebuttal2_baselines: [6/48] gaussian_noise|svhn|eta|0.5
+[18:08:44] INFO rebuttal2_baselines:   mixed=0.5350  id_only=0.5993  gap=+0.0643  p=1.06e-10
+[18:08:44] INFO rebuttal2_baselines: [7/48] gaussian_noise|svhn|unient_plus|0.9
+[18:08:59] INFO rebuttal2_baselines:   mixed=0.5465  id_only=0.6479  gap=+0.1014  p=1.04e-06
+[18:08:59] INFO rebuttal2_baselines: [8/48] gaussian_noise|svhn|unient_plus|0.5
+[18:09:11] INFO rebuttal2_baselines:   mixed=0.5148  id_only=0.5985  gap=+0.0837  p=3.93e-11
+[18:09:11] INFO rebuttal2_baselines: [9/48] gaussian_noise|svhn|sar|0.9
+[18:09:43] INFO rebuttal2_baselines:   mixed=0.5055  id_only=0.5631  gap=+0.0576  p=0.000919
+[18:09:43] INFO rebuttal2_baselines: [10/48] gaussian_noise|svhn|sar|0.5
+[18:10:04] INFO rebuttal2_baselines:   mixed=0.5999  id_only=0.6114  gap=+0.0115  p=0.0722
+[18:10:04] INFO rebuttal2_baselines: [11/48] gaussian_noise|svhn|cotta|0.9
+[18:13:05] INFO rebuttal2_baselines:   mixed=0.5973  id_only=0.6120  gap=+0.0147  p=0.0932
+[18:13:05] INFO rebuttal2_baselines: [12/48] gaussian_noise|svhn|cotta|0.5
+[18:15:22] INFO rebuttal2_baselines:   mixed=0.6006  id_only=0.6124  gap=+0.0118  p=0.0369
+[18:15:22] INFO rebuttal2_baselines: [13/48] gaussian_noise|dtd|no_tta|0.9
+[18:15:23] INFO rebuttal2_baselines:   mixed=0.6534  id_only=0.6534  gap=+0.0000  p=nan
+[18:15:23] INFO rebuttal2_baselines: [14/48] gaussian_noise|dtd|no_tta|0.5
+[18:15:26] INFO rebuttal2_baselines:   mixed=0.6486  id_only=0.6486  gap=+0.0000  p=nan
+[18:15:26] INFO rebuttal2_baselines: [15/48] gaussian_noise|dtd|tent|0.9
+[18:15:32] INFO rebuttal2_baselines:   mixed=0.6688  id_only=0.7842  gap=+0.1154  p=1.41e-11
+[18:15:32] INFO rebuttal2_baselines: [16/48] gaussian_noise|dtd|tent|0.5
+[18:15:38] INFO rebuttal2_baselines:   mixed=0.5934  id_only=0.6772  gap=+0.0839  p=3.3e-10
+[18:15:38] INFO rebuttal2_baselines: [17/48] gaussian_noise|dtd|eta|0.9
+[18:15:44] INFO rebuttal2_baselines:   mixed=0.6608  id_only=0.7475  gap=+0.0867  p=1.08e-11
+[18:15:44] INFO rebuttal2_baselines: [18/48] gaussian_noise|dtd|eta|0.5
+[18:15:50] INFO rebuttal2_baselines:   mixed=0.6299  id_only=0.6789  gap=+0.0491  p=7.79e-07
+[18:15:50] INFO rebuttal2_baselines: [19/48] gaussian_noise|dtd|unient_plus|0.9
+[18:15:56] INFO rebuttal2_baselines:   mixed=0.6662  id_only=0.7511  gap=+0.0850  p=1.47e-09
+[18:15:56] INFO rebuttal2_baselines: [20/48] gaussian_noise|dtd|unient_plus|0.5
+[18:16:02] INFO rebuttal2_baselines:   mixed=0.6322  id_only=0.7057  gap=+0.0736  p=8.34e-09
+[18:16:02] INFO rebuttal2_baselines: [21/48] gaussian_noise|dtd|sar|0.9
+[18:16:11] INFO rebuttal2_baselines:   mixed=0.6544  id_only=0.6688  gap=+0.0144  p=0.00649
+[18:16:11] INFO rebuttal2_baselines: [22/48] gaussian_noise|dtd|sar|0.5
+[18:16:20] INFO rebuttal2_baselines:   mixed=0.6186  id_only=0.6344  gap=+0.0159  p=0.00292
+[18:16:20] INFO rebuttal2_baselines: [23/48] gaussian_noise|dtd|cotta|0.9
+[18:19:12] INFO rebuttal2_baselines:   mixed=0.6538  id_only=0.6679  gap=+0.0141  p=0.00339
+[18:19:12] INFO rebuttal2_baselines: [24/48] gaussian_noise|dtd|cotta|0.5
+[18:21:31] INFO rebuttal2_baselines:   mixed=0.6608  id_only=0.6772  gap=+0.0164  p=0.00554
+[18:21:31] INFO rebuttal2_baselines: [25/48] fog|svhn|no_tta|0.9
+[18:21:33] INFO rebuttal2_baselines:   mixed=0.7765  id_only=0.7765  gap=+0.0000  p=nan
+[18:21:33] INFO rebuttal2_baselines: [26/48] fog|svhn|no_tta|0.5
+[18:21:35] INFO rebuttal2_baselines:   mixed=0.8042  id_only=0.8042  gap=+0.0000  p=nan
+[18:21:35] INFO rebuttal2_baselines: [27/48] fog|svhn|tent|0.9
+[18:21:41] INFO rebuttal2_baselines:   mixed=0.7942  id_only=0.8555  gap=+0.0613  p=2.36e-09
+[18:21:41] INFO rebuttal2_baselines: [28/48] fog|svhn|tent|0.5
+[18:21:46] INFO rebuttal2_baselines:   mixed=0.7901  id_only=0.8498  gap=+0.0597  p=9.09e-15
+[18:21:46] INFO rebuttal2_baselines: [29/48] fog|svhn|eta|0.9
+[18:21:52] INFO rebuttal2_baselines:   mixed=0.7983  id_only=0.8274  gap=+0.0291  p=9.47e-08
+[18:21:52] INFO rebuttal2_baselines: [30/48] fog|svhn|eta|0.5
+[18:21:58] INFO rebuttal2_baselines:   mixed=0.7789  id_only=0.8096  gap=+0.0308  p=1.63e-06
+[18:21:58] INFO rebuttal2_baselines: [31/48] fog|svhn|unient_plus|0.9
+[18:22:04] INFO rebuttal2_baselines:   mixed=0.8211  id_only=0.8478  gap=+0.0267  p=0.00205
+[18:22:04] INFO rebuttal2_baselines: [32/48] fog|svhn|unient_plus|0.5
+[18:22:10] INFO rebuttal2_baselines:   mixed=0.7784  id_only=0.8127  gap=+0.0343  p=1.83e-06
+[18:22:10] INFO rebuttal2_baselines: [33/48] fog|svhn|sar|0.9
+[18:22:19] INFO rebuttal2_baselines:   mixed=0.8015  id_only=0.8106  gap=+0.0091  p=0.0218
+[18:22:19] INFO rebuttal2_baselines: [34/48] fog|svhn|sar|0.5
+[18:22:28] INFO rebuttal2_baselines:   mixed=0.7736  id_only=0.7893  gap=+0.0157  p=1.05e-05
+[18:22:28] INFO rebuttal2_baselines: [35/48] fog|svhn|cotta|0.9
+[18:25:19] INFO rebuttal2_baselines:   mixed=0.8082  id_only=0.8088  gap=+0.0006  p=0.868
+[18:25:19] INFO rebuttal2_baselines: [36/48] fog|svhn|cotta|0.5
+[18:27:36] INFO rebuttal2_baselines:   mixed=0.7834  id_only=0.7817  gap=-0.0017  p=0.511
+[18:27:36] INFO rebuttal2_baselines: [37/48] fog|dtd|no_tta|0.9
+[18:27:37] INFO rebuttal2_baselines:   mixed=0.8182  id_only=0.8182  gap=+0.0000  p=nan
+[18:27:37] INFO rebuttal2_baselines: [38/48] fog|dtd|no_tta|0.5
+[18:27:40] INFO rebuttal2_baselines:   mixed=0.8278  id_only=0.8278  gap=+0.0000  p=nan
+[18:27:40] INFO rebuttal2_baselines: [39/48] fog|dtd|tent|0.9
+[18:27:45] INFO rebuttal2_baselines:   mixed=0.8318  id_only=0.8862  gap=+0.0544  p=9.17e-08
+[18:27:45] INFO rebuttal2_baselines: [40/48] fog|dtd|tent|0.5
+[18:27:52] INFO rebuttal2_baselines:   mixed=0.8118  id_only=0.8483  gap=+0.0365  p=4.45e-06
+[18:27:52] INFO rebuttal2_baselines: [41/48] fog|dtd|eta|0.9
+[18:27:57] INFO rebuttal2_baselines:   mixed=0.8499  id_only=0.8781  gap=+0.0282  p=2.09e-06
+[18:27:57] INFO rebuttal2_baselines: [42/48] fog|dtd|eta|0.5
+[18:28:04] INFO rebuttal2_baselines:   mixed=0.8184  id_only=0.8400  gap=+0.0215  p=2.67e-05
+[18:28:04] INFO rebuttal2_baselines: [43/48] fog|dtd|unient_plus|0.9
+[18:28:10] INFO rebuttal2_baselines:   mixed=0.8532  id_only=0.8920  gap=+0.0389  p=2.31e-06
+[18:28:10] INFO rebuttal2_baselines: [44/48] fog|dtd|unient_plus|0.5
+[18:28:16] INFO rebuttal2_baselines:   mixed=0.7964  id_only=0.8340  gap=+0.0376  p=7.72e-07
+[18:28:16] INFO rebuttal2_baselines: [45/48] fog|dtd|sar|0.9
+[18:28:25] INFO rebuttal2_baselines:   mixed=0.8591  id_only=0.8635  gap=+0.0044  p=0.0667
+[18:28:25] INFO rebuttal2_baselines: [46/48] fog|dtd|sar|0.5
+[18:28:34] INFO rebuttal2_baselines:   mixed=0.7952  id_only=0.8051  gap=+0.0099  p=0.00384
+[18:28:34] INFO rebuttal2_baselines: [47/48] fog|dtd|cotta|0.9
+[18:31:22] INFO rebuttal2_baselines:   mixed=0.8383  id_only=0.8398  gap=+0.0014  p=0.636
+[18:31:22] INFO rebuttal2_baselines: [48/48] fog|dtd|cotta|0.5
+[18:33:43] INFO rebuttal2_baselines:   mixed=0.8091  id_only=0.8118  gap=+0.0027  p=0.351
+[18:33:43] INFO rebuttal2_baselines: Saved → results/rebuttal2/extended_baselines_results.json
+[18:33:43] INFO rebuttal2_baselines: 
+=== Ranking audit (alpha=0.9, avg over OODs × corruptions) ===
+[18:33:43] INFO rebuttal2_baselines: method        mixed_AUROC  id_only_AUROC  paired_gap  panel_B_rank
+[18:33:43] INFO rebuttal2_baselines:   cotta         0.7244       0.7321         +0.0077      #1
+[18:33:43] INFO rebuttal2_baselines:   unient_plus   0.7217       0.7847         +0.0630      #2
+[18:33:43] INFO rebuttal2_baselines:   tent          0.7147       0.8003         +0.0857      #3
+[18:33:43] INFO rebuttal2_baselines:   eta           0.7124       0.7751         +0.0627      #4
+[18:33:43] INFO rebuttal2_baselines:   sar           0.7051       0.7265         +0.0214      #5
+[18:33:43] INFO rebuttal2_baselines:   no_tta        0.6992       0.6992         +0.0000      #6
+[18:33:43] INFO rebuttal2_baselines: 
+Rank correlation (Panel A=id_only vs Panel B=mixed): Spearman rho=0.300 (p=0.624), Kendall tau=0.200 (p=0.817)

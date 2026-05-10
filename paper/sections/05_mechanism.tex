@@ -1,7 +1,7 @@
 \section{Mechanism Decomposition}
 \label{sec:mechanism}
 
-\subsection{Four-Condition Control (Step 8)}
+\subsection{Four-Condition Control}
 
 \begin{figure}[t]
   \centering
@@ -18,7 +18,7 @@
   \label{fig:decomposition}
 \end{figure}
 
-Table~\ref{tab:step8} summarizes results from the four-condition control.
+Table~\ref{tab:decomp} summarizes results from the four-condition control.
 The most striking finding is that $\ml$ \emph{outperforms the oracle} $\idonly$ in every cell.
 For SVHN $\alpha = 0.5$ under gaussian noise: $\DeltaA(\ml) = +0.345$ vs.\ $\DeltaA(\idonly) = +0.044$ ($4.4\times$ better).
 BatchNorm computing joint statistics over heterogeneous ID and OOD images---instead of ID-only---creates contrast that the ID-restricted entropy loss exploits.
@@ -30,7 +30,7 @@ BatchNorm computing joint statistics over heterogeneous ID and OOD images---inst
   All conditions use the same drawn batches.
   Decomposition percentages are relative to the total gap $(\idsub - \mixed)$.
 }
-\label{tab:step8}
+\label{tab:decomp}
 \begin{tabular}{llcccc r@{\,}r@{\,}r}
 \toprule
 OOD & $\alpha$ & $\idsub$ & $\idfull$ & $\ml$ & $\mixed$ & \multicolumn{3}{c}{Decomposition} \\

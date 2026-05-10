@@ -25,6 +25,21 @@ For uncertainty-based OOD detectors of the kind studied here, applying entropy m
 
 \subsection{Paired Contamination Protocol}
 
+\noindent\fbox{%
+\begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+\textbf{Protocol Contract.}
+\begin{itemize}[leftmargin=*,topsep=1pt,itemsep=0pt]
+  \item \textbf{What adapts:} BatchNorm affine parameters ($\gamma, \beta$) only; all other weights frozen.
+  \item \textbf{Resets between conditions:} Weights reset to pretrained checkpoint. Each condition runs on the same $n=30$ batch sequences, independently drawn with pre-assigned seeds.
+  \item \textbf{Statistical unit:} One independently seeded batch sequence. Paired $t$-tests pair the same seed across conditions; CIs are over $n=30$ seeds.
+  \item \textbf{OOD detectors (frozen-detector contract):} Calibrated once on source-domain training data under the pretrained model; not updated during adaptation. This measures \emph{system-level compatibility} with a pre-deployed detector---the relevant contract when the detector was calibrated before deployment and is not co-maintained. We evaluate the recalibrated-detector contract (post-adaptation recalibration from a held-out calibration set) in Section~\ref{sec:recalibration}.
+  \item \textbf{Scope:} Primary experiments use TENT and ETA on CIFAR-10/CIFAR-10-C. Section~\ref{sec:audit} extends to six method families (No TTA, TENT, ETA, UniEnt+, SAR, CoTTA) and ImageNet-scale replication.
+\end{itemize}
+\end{minipage}%
+}
+
+\medskip
+
 We define three conditions applied to the same drawn batch $\calB$:
 
 \begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
@@ -33,21 +48,25 @@ We define three conditions applied to the same drawn batch $\calB$:
   \item $\mixed$: adapt using $\mathcal{L}_{\text{TENT}}$ on the full $\calB$. Realistic deployment condition.
 \end{itemize}
 
-The same random seed draws identical batches across all three conditions.
-We run $n = 30$ independent batch draws per experimental cell and report:
+The same random seed draws identical batches across all three conditions, ensuring the comparison is paired.
+We run $n = 30$ independent batch draws per experimental cell; each draw uses a distinct, pre-assigned seed for batch construction, ensuring independence across draws (no shared RNG state between seeds).
+We report:
 \begin{align}
   \DeltaA(\cdot) &= \text{AUROC}(T) - \text{AUROC}(0) \label{eq:delta_auroc}\\
   \gap &= \DeltaA(\idonly) - \DeltaA(\mixed) \label{eq:gap}\\
   \forfeit &= \gap / \DeltaA(\idonly) \label{eq:forfeit}
 \end{align}
-with 95\% bootstrap CIs and a paired $t$-test.
+with 95\% bootstrap CIs and a paired $t$-test across $n$ independently drawn batch sequences (each sequence uses a distinct random seed for batch construction).
 The gap $\gap$ is the contamination cost: how much OOD-detection improvement is forfeited by using the full mixed batch instead of the clean ID oracle.
 The forfeit fraction $\forfeit > 1$ indicates that mixed adaptation leaves OOD detection \emph{worse} than no adaptation.
 
 \paragraph{The id-only oracle.}
 $\idonly$ TENT is a diagnostic oracle, not a deployable method.
 It requires ground-truth knowledge of which samples are ID versus OOD---precisely what an OOD detector is designed to produce.
-Its role is to establish a measurable upper bound on OOD-detection improvement under zero contamination, providing a calibrated reference for the contamination cost.
+Its role is to establish a \emph{gradient-clean baseline}: the OOD-detection improvement achievable when no OOD sample ever enters the entropy loss.
+We use this as a calibrated reference for the contamination cost, not as an achievable deployment optimum.
+Indeed, the $\ml$ condition in Section~\ref{sec:mechanism}---which allows BatchNorm to see OOD inputs while keeping the gradient clean---consistently outperforms $\idonly$, confirming that $\idonly$ underestimates the best achievable performance.
+$\forfeit$ therefore measures the fraction of \emph{gradient-clean ID-only adaptation benefit} lost to contamination, not the fraction of an achievable performance ceiling.
 
 \subsection{Four-Condition Mechanistic Decomposition}
 

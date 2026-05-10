@@ -11,9 +11,11 @@ BatchNorm affine parameters adapted by TENT; all other weights frozen.
 \textbf{OOD datasets.} SVHN \citep{svhn}, DTD \citep{dtd}, Places365 \citep{places365}, and CIFAR-100 \citep{cifar100}.
 ID fraction $\alpha \in \{0.9, 0.75, 0.5, 0.25\}$.
 
-\textbf{OOD detectors.} Maximum softmax probability (MSP) \citep{msp}, energy score \citep{energy}, and Mahalanobis distance \citep{mahal}.
+\textbf{OOD detectors.} Maximum softmax probability (MSP) \citep{msp}, energy score \citep{energy}, Mahalanobis distance \citep{mahal}, KNN ($k{=}50$) \citep{knn_ood}, and ViM \citep{vim}. KNN and ViM results are in Sections~\ref{sec:characterization}--\ref{sec:recalibration}; the 27/32 significance count uses MSP, Energy, and Mahalanobis as primary detectors.
 
-\textbf{TTA methods.} TENT \citep{tent} and ETA \citep{eta}; $T=10$ steps per batch.
+\textbf{TTA methods.} TENT \citep{tent} and ETA \citep{eta}; $T=10$ steps per batch. Extended method coverage (SAR, CoTTA, UniEnt+) is in Section~\ref{sec:audit}.
+
+\textbf{Evaluation contract.} All OOD detectors are calibrated once on 10K source-domain training samples under the pretrained model and held fixed throughout adaptation (frozen-detector contract, see Section~\ref{sec:protocol}). For Mahalanobis distance, class means and precision matrix are computed from pretrained features and not updated. For KNN ($k{=}50$), training features are extracted from the pretrained model and frozen. This contract measures system-level compatibility between TTA and a pre-deployed detector not co-maintained during adaptation. We evaluate the recalibrated-detector contract in Section~\ref{sec:recalibration}.
 
 \subsection{Core Result: Paired Contamination Gap}
 
@@ -31,9 +33,10 @@ ID fraction $\alpha \in \{0.9, 0.75, 0.5, 0.25\}$.
 
 Figure~\ref{fig:forest} shows the core result for SVHN.
 At $\alpha = 0.9$ (90\% ID), \idonly{} achieves $\DeltaA = +0.188$ while \mixed{} achieves $-0.043$: a gap of $+0.231$ ($p = 2.6 \times 10^{-8}$, forfeit fraction $= 1.23$).
-At $\alpha = 0.5$, \idonly{} achieves $+0.077$ while \mixed{} achieves $-0.052$: forfeit fraction $= 1.68$ (mixed TTA makes OOD detection \emph{worse} by 168\% of what ID-only TTA would have gained).
+At $\alpha = 0.5$, \idonly{} achieves $+0.077$ while \mixed{} achieves $-0.052$: an absolute gap of $+0.129$, corresponding to a forfeit fraction of $1.68$ (mixed TTA makes OOD detection \emph{worse} by 168\% of what ID-only TTA would have gained).
 
 Table~\ref{tab:significance_summary} summarizes significance across all 32 experimental cells.
+Individual cell $p$-values are Benjamini-Hochberg FDR-corrected across all 32 tests at $q = 0.05$; the 27/32 count holds under correction.
 
 \begin{table}[t]
 \centering
@@ -58,10 +61,25 @@ CIFAR-100    & 2/4 & 3/4 \\
 \end{tabular}
 \end{table}
 
-\paragraph{Detector breadth.}
-The paired gap holds across all three OOD detectors (Steps 3 in our experimental protocol).
+\paragraph{Detector breadth (confidence-based and feature-based detectors).}
+The paired gap holds across all three OOD detectors tested---MSP, energy, and Mahalanobis---all of which rely on logit-scale confidence or feature-space proximity (see Section~\ref{sec:background}).
 For DTD at $\alpha = 0.9$: MSP gap $+0.212$ ($p = 7.9 \times 10^{-11}$), Energy gap $+0.225$ ($p = 1.7 \times 10^{-12}$), Mahalanobis gap $+0.031$ ($p = 2.9 \times 10^{-4}$).
 Even for Mahalanobis, where corruption alone collapses AUROC by 0.58 before any adaptation, the contamination adds an incremental penalty above the corruption baseline.
+
+\paragraph{Non-logit-scale detectors: KNN and ViM.}
+We extend the detector evaluation to two non-logit-scale detectors that cannot be directly sharpened by entropy minimization: $k$-NN distance in L2-normalized feature space \citep{knn_ood} (KNN, $k{=}50$) and the ViM residual-norm score in the feature null space \citep{vim}.
+Training features (10K samples from the source domain) are extracted once from the frozen pretrained model and held fixed.
+
+Results at $\alpha = 0.9$, averaged over SVHN and DTD (gaussian noise and fog):
+
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item \textbf{KNN}: id-only AUROC exceeds mixed AUROC by $+0.061$ for TENT ($p = 6.7 \times 10^{-8}$) and $+0.036$ for ETA ($p = 1.2 \times 10^{-6}$). FPR95 follows the same direction (id-only FPR95 lower by $5.0\%$/$4.0\%$). All four KNN cells are significant ($p < 10^{-5}$).
+  \item \textbf{ViM}: gaps are $+0.003$ (TENT, $p = 0.298$) and $+0.001$ (ETA, $p = 0.505$) at $\alpha = 0.9$; not significant in 15/16 cells across all tested conditions. One exception: ETA/SVHN/gaussian/$\alpha{=}0.5$ shows a gap of $+0.012$ ($p = 0.0047$), warranting further investigation at moderate contamination levels. The feature-null-space residual norm is largely unaffected by BN adaptation in our setting.
+\end{itemize}
+
+The KNN result confirms that the contamination gap is \emph{not} an artifact of using logit-sensitive detectors: OOD gradient contamination also distorts the ID/OOD separation in feature space.
+The ViM result provides mechanistic insight: while the feature embedding changes under adaptation, the component of the feature lying outside the FC weight's row space is largely preserved, consistent with BN adaptation primarily rescaling and shifting features rather than rotating them out of the row space.
+Both findings are consistent with the gradient contamination mechanism identified in Section~\ref{sec:mechanism}.
 
 \paragraph{Places365 and CIFAR-100.}
 Mixed TENT's absolute AUROC change does not go negative for Places365 and CIFAR-100 because their pre-TTA AUROC is near chance ($\sim 0.49$), leaving little room for further degradation.
@@ -119,3 +137,156 @@ jpeg & ETA  & 0.5 & $+0.050$ & $-0.025$ & $9.7 \times 10^{-13}$ \\
 Table~\ref{tab:imagenet_scale} shows that the paired gap holds in all 8 cells at ImageNet scale.
 The TENT gap ($\DeltaA(\idonly) - \DeltaA(\mixed)$) substantially exceeds the ETA gap in every row, consistent with the mechanism analysis in Section~\ref{sec:mechanism}: ETA's entropy threshold removes high-entropy (likely OOD) samples from the loss, providing partial OOD gradient mitigation.
 FPR95 mirrors the AUROC pattern: id\_only FPR95 is consistently lower than mixed FPR95 (e.g., fog TENT $\alpha=0.9$: id\_only $0.380$ vs.\ mixed $0.859$).
+
+\subsection{Streaming Validation}
+\label{sec:streaming}
+
+To test whether the contamination cost is an artifact of single-batch evaluation,
+we run a 100-batch sequential stream with no model reset between batches.
+The model state carries over from batch to batch, matching realistic continual TTA deployment.
+We use the same matched oracle design: the \idonly{} stream adapts on the ID subset of each batch using the same batch order, while \mixed{} adapts on the full batch.
+
+Figure~\ref{fig:streaming} shows the AUROC trajectory for the representative cell (TENT, SVHN, $\alpha=0.9$).
+The paired gap (blue $-$ red) persists throughout the stream without systematic decay.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig_streaming.png}
+  \caption{%
+    \textbf{Streaming validation: AUROC trajectory over 100 sequential batches (TENT, SVHN, $\alpha{=}0.9$, gaussian noise, 5 seeds).}
+    \emph{Left}: MSP-AUROC per batch. The \idonly{} oracle (blue) consistently exceeds \mixed{} (red) throughout the stream.
+    \emph{Right}: Paired gap (id\_only $-$ mixed). The gap persists without decay, confirming the contamination cost is not a single-batch artifact.
+  }
+  \label{fig:streaming}
+\end{figure}
+
+Table~\ref{tab:streaming} summarizes the time-averaged MSP-AUROC across the 100-batch stream for our 8-cell design (TENT and ETA $\times$ SVHN and DTD $\times$ $\alpha\in\{0.5,0.9\}$, gaussian noise, 5 seeds).
+The paired gap is positive and significant in 8/8 cells ($p < 0.001$ in every cell), and the mixed-stream AUROC remains below the \idonly{} baseline throughout.
+The contamination cost is not a single-batch artifact.
+
+\paragraph{Non-stationary contamination levels.}
+To test deployment realism beyond fixed-$\alpha$ streams, we extend the streaming protocol to two non-stationary patterns over 100-batch sequences (TENT and ETA, SVHN and DTD, gaussian noise, 5 seeds each):
+
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item \textbf{OOD burst}: $\alpha = 0.9$ for $t \in [0, 29)$, drops to $\alpha = 0.3$ during a contamination burst ($t \in [30, 60)$), then recovers to $\alpha = 0.9$ for $t \in [60, 100)$.
+  \item \textbf{Sinusoidal}: $\alpha(t) = 0.5 + 0.4\cos(2\pi t / 50)$, oscillating continuously between 0.1 and 0.9.
+\end{itemize}
+
+The paired gap is positive in all 16 cells (8 OOD-burst, 8 sinusoidal), confirming that the contamination cost is not an artifact of fixed contamination levels.
+OOD-burst gaps are larger overall (SVHN/TENT: $+0.157 \pm 0.009$; SVHN/ETA: $+0.166 \pm 0.009$) because the burst episodes introduce severe gradient contamination that the model does not recover from within the 100-batch window.
+Sinusoidal gaps are smaller but consistently positive (range $+0.033$--$+0.045$), reflecting the time-varying contamination signal.
+These results address the deployment-realism concern: real-world OOD contamination is rarely stationary, and the contamination cost persists under both bursty and oscillating contamination regimes.
+
+\begin{table}[t]
+\centering\small
+\caption{%
+  Streaming validation: time-averaged MSP-AUROC over 100 sequential batches (no model reset).
+  Paired gap $= \idonly{}$ AUROC $- \mixed{}$ AUROC, averaged over the stream.
+  8/8 cells significant ($p < 0.001$).
+}
+\label{tab:streaming}
+\begin{tabular}{llcrrrrr}
+\toprule
+Method & OOD & $\alpha$ & No TTA & id-only & mixed & Paired gap & $p$ \\
+\midrule
+ETA  & DTD  & 0.5 & $0.649$ & $0.742$ & $0.532$ & $+0.210$ & $<0.001$ \\
+ETA  & DTD  & 0.9 & $0.663$ & $0.816$ & $0.558$ & $+0.259$ & $<0.001$ \\
+ETA  & SVHN & 0.5 & $0.590$ & $0.660$ & $0.456$ & $+0.204$ & $<0.001$ \\
+ETA  & SVHN & 0.9 & $0.581$ & $0.726$ & $0.425$ & $+0.301$ & $<0.001$ \\
+TENT & DTD  & 0.5 & $0.649$ & $0.743$ & $0.515$ & $+0.228$ & $<0.001$ \\
+TENT & DTD  & 0.9 & $0.663$ & $0.822$ & $0.554$ & $+0.268$ & $<0.001$ \\
+TENT & SVHN & 0.5 & $0.590$ & $0.648$ & $0.459$ & $+0.189$ & $<0.001$ \\
+TENT & SVHN & 0.9 & $0.581$ & $0.758$ & $0.450$ & $+0.308$ & $<0.001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Frozen-Detector Contract Validation}
+\label{sec:recalibration}
+
+The frozen-detector contract (Section~\ref{sec:protocol}) calibrates OOD detectors once on source-domain data and does not update them during adaptation.
+A natural fairness concern: if BN adaptation shifts the feature distribution, pretrained class means become misaligned with the adapted model's features, potentially inflating Mahalanobis distances for \emph{all} inputs equally and artefactually widening the paired gap.
+
+We address this with a \emph{recalibrated-detector} variant.
+After each adaptation condition (no-TTA / \idonly{} / \mixed{}), we extract features from the adapted model on a held-out clean calibration set (1\,000 labelled CIFAR-10 training samples, fixed across all batches), recompute per-class means and shared covariance (Mahalanobis) and rebuild the KNN reference bank.
+All other settings match Section~\ref{sec:characterization} (TENT, SVHN$+$DTD, gaussian noise$+$fog, $\alpha\in\{0.5,0.9\}$, $n{=}30$ batches).
+
+\begin{table}[t]
+\centering\small
+\caption{%
+  Frozen vs.\ recalibrated detector contract (TENT, avg over SVHN$+$DTD $\times$ gaussian noise$+$fog, $n{=}30$).
+  Paired gap $= \idonly{}$ AUROC $-$ \mixed{} AUROC.
+}
+\label{tab:recalibration}
+\begin{tabular}{llccc}
+\toprule
+Detector & Contract & $\alpha$ & Paired gap & $p$ \\
+\midrule
+KNN & Frozen       & 0.9 & $+0.060$ & $1.7\times10^{-8}$ \\
+KNN & Recalibrated & 0.9 & $+0.058$ & $1.4\times10^{-8}$ \\
+KNN & Frozen       & 0.5 & $+0.059$ & $7.6\times10^{-9}$ \\
+KNN & Recalibrated & 0.5 & $+0.064$ & $3.2\times10^{-9}$ \\
+\midrule
+Mahal & Frozen       & 0.9 & $+0.013$ & $5.7\times10^{-4}$ \\
+Mahal & Recalibrated & 0.9 & $+0.004$ & $0.43$ ~~(n.s.) \\
+Mahal & Frozen       & 0.5 & $+0.030$ & $2.7\times10^{-4}$ \\
+Mahal & Recalibrated & 0.5 & $+0.014$ & $0.069$ (n.s.) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{KNN gap is not an artefact of miscalibration.}
+The KNN paired gap persists in all 8/8 cells under recalibration, with magnitudes essentially unchanged (avg $+0.058$/$+0.064$ recalibrated vs.\ $+0.060$/$+0.059$ frozen at $\alpha{=}0.9$/$0.5$; Table~\ref{tab:recalibration}).
+The slight increase at $\alpha{=}0.5$ under recalibration is mechanistically consistent: recalibrating the KNN bank from the adapted model's features benefits \idonly{} more than \mixed{}, because OOD gradient contamination leaves the mixed model's feature space more disrupted.
+This confirms that the KNN paired gap reflects genuine degraded ID/OOD separability in feature space, not stale calibration.
+
+\paragraph{Mahalanobis gap has a miscalibration component.}
+The Mahalanobis paired gap is substantially reduced after recalibration and is not significant at either $\alpha$ level.
+This reveals that when BN affine parameters are updated, the adapted feature distribution drifts from the pretrained class means, creating an alignment artefact that inflates the frozen-contract Mahalanobis gap.
+Recalibrating class means removes most of this artefact.
+\emph{Practitioner implication}: Mahalanobis-based OOD detectors should be co-maintained with TTA model updates; without recalibration, the frozen-contract gap overstates the genuine separability loss.
+The KNN result therefore provides the cleaner evidence that OOD gradient contamination degrades feature-space ID/OOD separability.
+
+\subsection{Domain-Shift Benchmark}
+\label{sec:domain_shift}
+
+All preceding experiments use corruption-style shifts (CIFAR-10-C, ImageNet-C).
+To test whether the contamination gap survives genuine domain shift, we evaluate on \textbf{Office-Home}~\citep{officehome}, a standard domain-adaptation benchmark with 65 object categories across three visual domains.
+
+\textbf{Setup.}
+Backbone: ImageNet-pretrained ResNet-50 (torchvision, no fine-tuning; \citealt{resnet}).
+The 65 classes are split alphabetically into 25 known (ID) and 40 unknown (OOD).
+Source domain (Real~World) provides the KNN feature bank under the frozen-detector contract.
+We evaluate on two target domains ($\text{Real~World} \rightarrow \text{Art}$ and $\text{Real~World} \rightarrow \text{Clipart}$) $\times$ $\alpha \in \{0.5, 0.9\}$ = 4 cells.
+Method: TENT with $T{=}10$ steps, $n{=}10$ batches per cell.
+Detector: energy score (logit-based, requires no cross-domain feature comparison).
+
+\textbf{Results.}
+\begin{table}[t]
+\centering
+\small
+\caption{%
+  Domain-shift benchmark: energy-score paired contamination gap under TENT, $n{=}10$.
+  All four cells are significant ($p < 0.01$); gap direction matches the corruption-shift setting.
+}
+\label{tab:domain_shift}
+\begin{tabular}{llcc}
+\toprule
+Source $\rightarrow$ Target & $\alpha$ & Energy gap & $p$ \\
+\midrule
+RW $\rightarrow$ Art     & 0.9 & $+0.031$ & $< 0.001$ \\
+RW $\rightarrow$ Art     & 0.5 & $+0.055$ & $< 0.001$ \\
+RW $\rightarrow$ Clipart & 0.9 & $+0.076$ & $0.001$ \\
+RW $\rightarrow$ Clipart & 0.5 & $+0.079$ & $< 0.001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The energy-based contamination gap is significant in all 4/4 cells (Table~\ref{tab:domain_shift}), with magnitudes comparable to the corruption-shift setting ($+0.031$--$+0.079$).
+Under mixed-batch TENT, energy-based AUROC consistently drops below both no-TTA and id-only adaptation across both target domains and both contamination levels.
+
+\paragraph{KNN under cross-domain shift.}
+The frozen-detector KNN bank (built from Real~World features) does not provide significant positive gaps in this setting.
+Under id-only TENT, features of known classes drift away from the Real~World bank, paradoxically reducing KNN AUROC.
+Under mixed-batch TENT, OOD gradient contamination partially cancels this drift, leaving KNN AUROC roughly unchanged.
+This cross-domain bank-mismatch artefact is consistent with the Mahalanobis recalibration finding (\S\ref{sec:recalibration}): detectors that require source-domain feature comparison are sensitive to BN-induced feature drift; energy score, which operates on logits and requires no cross-domain feature comparison, is the appropriate evidence source for cross-domain settings.
