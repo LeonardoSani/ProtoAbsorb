@@ -15,17 +15,17 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from .models import ResNet18
+from ..models.models import ResNet18
 
 
 @dataclass
 class CentroidBank:
     """Class centroid storage with optional running covariance for Mahalanobis."""
 
-    centroids: torch.Tensor          # (C, D)
-    counts: torch.Tensor             # (C,) running sample count
-    cov: Optional[torch.Tensor] = None        # (D, D) shared covariance
-    cov_inv: Optional[torch.Tensor] = None    # (D, D) inverse
+    centroids: torch.Tensor  # (C, D)
+    counts: torch.Tensor  # (C,) running sample count
+    cov: Optional[torch.Tensor] = None  # (D, D) shared covariance
+    cov_inv: Optional[torch.Tensor] = None  # (D, D) inverse
 
     @property
     def num_classes(self) -> int:
@@ -52,8 +52,10 @@ class CentroidBank:
         )
 
     def save(self, path: str) -> None:
-        out = {"centroids": self.centroids.cpu().numpy(),
-               "counts": self.counts.cpu().numpy()}
+        out = {
+            "centroids": self.centroids.cpu().numpy(),
+            "counts": self.counts.cpu().numpy(),
+        }
         if self.cov is not None:
             out["cov"] = self.cov.cpu().numpy()
         if self.cov_inv is not None:
@@ -87,7 +89,9 @@ def compute_centroids(
     sums = torch.zeros(num_classes, feat_dim, device=device)
     counts = torch.zeros(num_classes, device=device)
 
-    cov_acc = torch.zeros(feat_dim, feat_dim, device=device) if with_covariance else None
+    cov_acc = (
+        torch.zeros(feat_dim, feat_dim, device=device) if with_covariance else None
+    )
     feat_total_count = 0
     feat_global_sum = torch.zeros(feat_dim, device=device) if with_covariance else None
 
@@ -133,8 +137,8 @@ def compute_centroids(
 @torch.no_grad()
 def update_centroids_dynamic(
     bank: CentroidBank,
-    feats: torch.Tensor,           # (N, D), the ID samples this step
-    labels: torch.Tensor,          # (N,), oracle class labels
+    feats: torch.Tensor,  # (N, D), the ID samples this step
+    labels: torch.Tensor,  # (N,), oracle class labels
     momentum: float = 0.9,
 ) -> CentroidBank:
     """EMA update of centroids using the ID samples present in the current batch.
@@ -152,9 +156,12 @@ def update_centroids_dynamic(
             mean_c = feats[mask].mean(dim=0)
             new_centroids[c] = momentum * new_centroids[c] + (1.0 - momentum) * mean_c
             new_counts[c] += mask.sum()
-    return CentroidBank(centroids=new_centroids.cpu(),
-                        counts=new_counts.cpu(),
-                        cov=bank.cov, cov_inv=bank.cov_inv)
+    return CentroidBank(
+        centroids=new_centroids.cpu(),
+        counts=new_counts.cpu(),
+        cov=bank.cov,
+        cov_inv=bank.cov_inv,
+    )
 
 
 def nearest_centroid_distances(
@@ -165,8 +172,8 @@ def nearest_centroid_distances(
     ``feats``: (N, D), ``centroids``: (C, D). Returns (N,) and (N,).
     """
     # ||a-b||^2 = ||a||^2 + ||b||^2 - 2 a.b
-    a2 = (feats ** 2).sum(dim=1, keepdim=True)
-    b2 = (centroids ** 2).sum(dim=1, keepdim=True).t()
+    a2 = (feats**2).sum(dim=1, keepdim=True)
+    b2 = (centroids**2).sum(dim=1, keepdim=True).t()
     d2 = (a2 + b2 - 2 * feats @ centroids.t()).clamp_min(0.0)
     d = d2.sqrt()
     min_d, argmin = d.min(dim=1)
