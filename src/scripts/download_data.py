@@ -15,7 +15,7 @@ from pathlib import Path
 
 import torchvision
 
-from proto_absorb.data import CIFAR10_C_CORRUPTIONS
+from ProtoAbsorb.src.data.data import CIFAR10_C_CORRUPTIONS
 
 CIFAR10C_URL = "https://zenodo.org/records/2535967/files/CIFAR-10-C.tar"
 
@@ -28,7 +28,9 @@ def _download_with_progress(url: str, dest: Path) -> None:
         downloaded = blocks * block_size
         if total > 0:
             pct = min(100.0, 100.0 * downloaded / total)
-            sys.stdout.write(f"\r  {downloaded/1e6:8.1f} / {total/1e6:8.1f} MB ({pct:5.1f}%)")
+            sys.stdout.write(
+                f"\r  {downloaded/1e6:8.1f} / {total/1e6:8.1f} MB ({pct:5.1f}%)"
+            )
             sys.stdout.flush()
 
     urllib.request.urlretrieve(url, dest, reporthook=_hook)
@@ -38,7 +40,9 @@ def _download_with_progress(url: str, dest: Path) -> None:
 def fetch_cifar10c(data_root: str) -> None:
     out_dir = Path(data_root) / "CIFAR-10-C"
     if out_dir.exists() and (out_dir / "labels.npy").exists():
-        missing = [c for c in CIFAR10_C_CORRUPTIONS if not (out_dir / f"{c}.npy").exists()]
+        missing = [
+            c for c in CIFAR10_C_CORRUPTIONS if not (out_dir / f"{c}.npy").exists()
+        ]
         if not missing:
             print(f"CIFAR-10-C already present at {out_dir}; skipping.")
             return
@@ -57,8 +61,9 @@ def fetch_cifar10c(data_root: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", default="data")
-    parser.add_argument("--skip-cifar10c", action="store_true",
-                        help="Skip CIFAR-10-C (large download).")
+    parser.add_argument(
+        "--skip-cifar10c", action="store_true", help="Skip CIFAR-10-C (large download)."
+    )
     parser.add_argument("--ood", choices=["svhn", "cifar100", "both"], default="svhn")
     args = parser.parse_args()
 
