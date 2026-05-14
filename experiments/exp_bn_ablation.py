@@ -48,7 +48,7 @@ from experiments._common import (
     set_seed,
     setup_matplotlib,
 )
-from proto_absorb.models import bn_to_in, build_resnet18, load_checkpoint
+from models import bn_to_in, build_resnet18, load_checkpoint
 from proto_absorb.tent import (
     TentConfig,
     collect_bn_params,

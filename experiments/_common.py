@@ -17,7 +17,7 @@ from proto_absorb.centroids import (
     nearest_centroid_distances,
     update_centroids_dynamic,
 )
-from proto_absorb.data import (
+from data import (
     CIFAR10_C_CORRUPTIONS,
     CIFAR10C,
     MixedBatch,
@@ -26,7 +26,7 @@ from proto_absorb.data import (
     eval_transform,
     get_ood_dataset,
 )
-from proto_absorb.models import build_resnet18, load_checkpoint
+from models import build_resnet18, load_checkpoint
 from proto_absorb.eata import EataConfig, EataState, eata_step
 from proto_absorb.scorers import energy_score, mahalanobis_score, msp_score
 from proto_absorb.tent import (
@@ -38,7 +38,7 @@ from proto_absorb.tent import (
     snapshot_logits_and_features,
     tent_step,
 )
-from proto_absorb.utils import ensure_dir, get_device, get_logger, set_seed
+from utils import ensure_dir, get_device, get_logger, set_seed
 
 
 ALPHAS = (0.9, 0.75, 0.5, 0.25)

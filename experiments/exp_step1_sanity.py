@@ -38,7 +38,7 @@ from experiments._common import (
     set_seed,
     setup_matplotlib,
 )
-from proto_absorb.data import (
+from data import (
     CIFAR10C,
     cifar10_test,
     eval_transform,
@@ -46,7 +46,7 @@ from proto_absorb.data import (
     make_dataloader,
 )
 from proto_absorb.metrics import auroc as auroc_fn
-from proto_absorb.models import build_resnet18, load_checkpoint
+from models import build_resnet18, load_checkpoint
 
 
 @torch.no_grad()

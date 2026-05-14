@@ -18,7 +18,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from proto_absorb.data import (
+from data import (
     ImageNetC,
     NincoOOD,
     dtd_ood_224,
@@ -26,9 +26,9 @@ from proto_absorb.data import (
     get_ood_dataset_224,
 )
 from proto_absorb.metrics import auroc, fpr95
-from proto_absorb.models import build_resnet50
+from models import build_resnet50
 from proto_absorb.scorers import energy_score, msp_score
-from proto_absorb.utils import ensure_dir, get_device, get_logger, set_seed
+from utils import ensure_dir, get_device, get_logger, set_seed
 
 
 def evaluate_loader(model, loader, device, max_batches=None):

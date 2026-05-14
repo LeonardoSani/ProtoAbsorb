@@ -48,8 +48,8 @@ from experiments._common import (
     TentConfig, TentVariant,
     collect_bn_params, configure_tent_model, make_optimizer,
 )
-from proto_absorb.data import ImageNetC, get_ood_dataset_224
-from proto_absorb.models import build_resnet50
+from data import ImageNetC, get_ood_dataset_224
+from models import build_resnet50
 
 
 CONDITIONS = ("no_tta", "id_only", "mixed")

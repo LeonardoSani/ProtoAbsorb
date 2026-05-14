@@ -1,12 +1,15 @@
 from __future__ import annotations
 from models.models import BasicBlock
+from models.base import BackboneClassifier
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 
-class ResNet18(nn.Module):
+class ResNet18(BackboneClassifier):
     """ResNet-18 with the 'CIFAR' stem (3x3 conv, no maxpool)."""
+
+    feat_dim: int = 512 * BasicBlock.expansion
 
     def __init__(self, num_classes: int = 10):
         super().__init__()
@@ -19,7 +22,6 @@ class ResNet18(nn.Module):
         self.layer4 = self._make_layer(512, 2, stride=2)
         self.avgpool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(512 * BasicBlock.expansion, num_classes)
-        self.feat_dim = 512 * BasicBlock.expansion
 
     def _make_layer(self, planes: int, num_blocks: int, stride: int) -> nn.Sequential:
         strides = [stride] + [1] * (num_blocks - 1)
@@ -38,14 +40,8 @@ class ResNet18(nn.Module):
         out = self.avgpool(out)
         return torch.flatten(out, 1)
 
-    def forward(
-        self, x: torch.Tensor, return_features: bool = False
-    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
-        feats = self.features(x)
-        logits = self.fc(feats)
-        if return_features:
-            return logits, feats
-        return logits
+    def classify(self, feats: torch.Tensor) -> torch.Tensor:
+        return self.fc(feats)
 
 
 def build_resnet18(num_classes: int = 10) -> ResNet18:

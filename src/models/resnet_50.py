@@ -3,15 +3,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as tvm
 
+from models.base import BackboneClassifier
 
-class ResNet50Wrapper(nn.Module):
-    """torchvision ResNet-50 with return_features=True interface.
 
-    Exposes the same (logits, feats) forward signature as ResNet18 / ViTSmall
-    so all existing _common.py helpers work unchanged.
-    """
+class ResNet50Wrapper(BackboneClassifier):
+    """torchvision ResNet-50 conforming to the BackboneClassifier ABC."""
 
-    feat_dim = 2048
+    feat_dim: int = 2048
 
     def __init__(self):
         super().__init__()
@@ -33,14 +31,8 @@ class ResNet50Wrapper(nn.Module):
         x = self.layer4(self.layer3(self.layer2(self.layer1(x))))
         return torch.flatten(self.avgpool(x), 1)
 
-    def forward(
-        self, x: torch.Tensor, return_features: bool = False
-    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
-        feats = self.features(x)
-        logits = self.fc(feats)
-        if return_features:
-            return logits, feats
-        return logits
+    def classify(self, feats: torch.Tensor) -> torch.Tensor:
+        return self.fc(feats)
 
 
 def build_resnet50() -> ResNet50Wrapper:

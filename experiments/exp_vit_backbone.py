@@ -42,14 +42,14 @@ from experiments._common import (
     TentConfig,
     TentVariant,
 )
-from proto_absorb.data import (
+from data import (
     CIFAR10C,
     MixedBatch,
     MixedBatchSampler,
     eval_transform_224,
     svhn_ood_224,
 )
-from proto_absorb.models import build_vit_small, load_checkpoint
+from models import build_vit_small, load_checkpoint
 from proto_absorb.tent import collect_ln_params, configure_vit_tent_model
 from proto_absorb.scorers import energy_score, msp_score
 

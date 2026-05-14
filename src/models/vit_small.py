@@ -7,11 +7,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 import timm
 
+from models.base import BackboneClassifier
 
-class ViTSmall(nn.Module):
-    """ViT-S/16 (timm) with return_features=True interface. Expects 224×224 input."""
 
-    feat_dim = 384
+class ViTSmall(BackboneClassifier):
+    """ViT-S/16 (timm) conforming to the BackboneClassifier ABC.
+
+    Expects 224x224 input.
+    """
+
+    feat_dim: int = 384
 
     def __init__(self, num_classes: int = 10):
         super().__init__()
@@ -24,14 +29,8 @@ class ViTSmall(nn.Module):
     def features(self, x: torch.Tensor) -> torch.Tensor:
         return self.backbone(x)
 
-    def forward(
-        self, x: torch.Tensor, return_features: bool = False
-    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
-        feats = self.features(x)
-        logits = self.head(feats)
-        if return_features:
-            return logits, feats
-        return logits
+    def classify(self, feats: torch.Tensor) -> torch.Tensor:
+        return self.head(feats)
 
 
 def build_vit_small(num_classes: int = 10) -> ViTSmall:

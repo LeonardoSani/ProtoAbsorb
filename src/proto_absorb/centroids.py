@@ -15,7 +15,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from ..models.models import ResNet18
+from models.base import BackboneClassifier
 
 
 @dataclass
@@ -77,7 +77,7 @@ class CentroidBank:
 
 @torch.no_grad()
 def compute_centroids(
-    model: ResNet18,
+    model: BackboneClassifier,
     loader: DataLoader,
     num_classes: int,
     device: torch.device,

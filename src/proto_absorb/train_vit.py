@@ -11,9 +11,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from .data import cifar10_test_224, cifar10_train_224, make_dataloader
-from .models import build_vit_small
-from .utils import ensure_dir, get_device, get_logger, set_seed
+from ..data.data import cifar10_test_224, cifar10_train_224, make_dataloader
+from ..models.models import build_vit_small
+from ..utils.utils import ensure_dir, get_device, get_logger, set_seed
 
 
 def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> float:

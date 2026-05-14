@@ -6,9 +6,9 @@ import argparse
 from pathlib import Path
 
 from .centroids import compute_centroids
-from .data import cifar10_train, make_dataloader
-from .models import build_resnet18, load_checkpoint
-from .utils import ensure_dir, get_device, get_logger, set_seed
+from ..data.data import cifar10_train, make_dataloader
+from ..models.models import build_resnet18, load_checkpoint
+from ..utils.utils import ensure_dir, get_device, get_logger, set_seed
 
 
 def cli() -> None:
