@@ -25,3 +25,5 @@ outputs/
 
 # tent-replication run outputs (regenerable)
 results/tent_replication/
+
+/docs
