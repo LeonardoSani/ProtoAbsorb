@@ -1,0 +1,21 @@
+# Reference errors from TENT (Wang et al., ICLR 2021), Table 2.
+# These are means over the 15 corruption types at severity 5.
+# Tolerances: 0.3 absolute on each cell; 1.0 absolute on the Source row
+# (Source drift > 1.0% means the checkpoint or preprocessing is wrong).
+
+paper: "Wang, Shelhamer, Liu, Olshausen, Darrell. ICLR 2021. arXiv:2006.10726v3"
+severity: 5
+
+cifar10:
+  source: 40.8
+  norm: 17.3
+  tent: 14.3
+
+cifar100:
+  source: 67.2
+  norm: 42.6
+  tent: 37.3
+
+tolerance:
+  default: 0.3
+  source_hard_fail: 1.0

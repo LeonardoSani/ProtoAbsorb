@@ -1,0 +1,13 @@
+MODEL:
+  ADAPTATION: source
+  ARCH: Standard
+TEST:
+  BATCH_SIZE: 200
+CORRUPTION:
+  DATASET: cifar10
+  SEVERITY:
+    - 5
+  TYPE:
+    - gaussian_noise
+    - jpeg_compression
+  NUM_EX: 200

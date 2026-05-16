@@ -23,6 +23,15 @@ dependencies = [
 
 [project.optional-dependencies]
 cuda = []  # install torch from a CUDA index manually if needed
+tent-replication = [
+    "robustbench>=1.1,<2",
+    "yacs>=0.1.8",
+    "pyautoattack>=0.2,<1",
+    "iopath>=0.1.9",
+]
+dev = [
+    "pytest>=7.4",
+]
 
 [project.scripts]
 proto-train = "proto_absorb.cli:train_main"
@@ -42,9 +51,20 @@ proto-exp2 = "proto_absorb.cli:exp2_main"
 proto-exp3 = "proto_absorb.cli:exp3_main"
 proto-exp7 = "proto_absorb.cli:exp7_main"
 
+[tool.uv]
+environments = ["sys_platform == 'linux'"]
+# Workaround: robustbench 1.1.x pins `timm==1.0.9` exactly, but this project
+# requires `timm>=1.0.26`. The override relaxes robustbench's pin to `>=1.0.9`
+# so uv resolves the already-required 1.0.26. See `src/autoattack/__init__.py`
+# for the companion autoattack→pyautoattack shim that addresses robustbench's
+# bare `import autoattack` against PyPI's `pyautoattack` namespace.
+override-dependencies = [
+    "timm>=1.0.9",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/proto_absorb", "src/models", "src/data", "src/utils", "experiments"]
+packages = ["src/proto_absorb", "src/models", "src/data", "src/utils", "experiments", "src/autoattack"]
